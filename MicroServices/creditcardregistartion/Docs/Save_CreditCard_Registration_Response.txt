@@ -1,0 +1,17 @@
+{
+    "ccnumber": 40,
+    "bid": "1",
+    "ccAmountLimit": "900000",
+    "billingSc": "Feb",
+    "custData": {
+        "custId": 9,
+        "fName": "Fname",
+        "mName": "Mname",
+        "lName": "Lname",
+        "city": "Bangalore",
+        "mobileNo": "0123456789",
+        "occupation": "Engineer",
+        "dob": "10/Jan/1981",
+        "email": "test@gmail.com"
+    }
+}
