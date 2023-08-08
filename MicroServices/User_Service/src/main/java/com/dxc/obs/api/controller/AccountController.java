@@ -26,7 +26,7 @@ public class AccountController {
 	
 	 @GetMapping("/getAccInfoById")
 	    public ResponseEntity<ResponseEntity<Optional<Account>>> getAccInfoById(Long userId) {
-		 log.info("getAccInfoById service - start");
+		 log.info("getAccInfoById controller - start");
 		 Optional<Account> accInfo = accountService.getAccInfoById(userId);
 
 	        if (accInfo != null) {

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.dxc.obs.api.entity.Account;
 import com.dxc.obs.api.entity.AccountType;
 import com.dxc.obs.api.entity.Branch;
+import com.dxc.obs.api.entity.Customer;
 import com.dxc.obs.api.entity.UserDetails;
 import com.dxc.obs.api.exception.BadRequestException;
 import com.dxc.obs.api.payload.request.UserRequest;
@@ -22,6 +23,7 @@ import com.dxc.obs.api.payload.request.loginRequest;
 import com.dxc.obs.api.repository.AccountRepository;
 import com.dxc.obs.api.repository.AccountTypeRepository;
 import com.dxc.obs.api.repository.BranchRepository;
+import com.dxc.obs.api.repository.CustomerRepository;
 import com.dxc.obs.api.repository.UserRepository;
 import com.dxc.obs.api.service.UserService;
 import com.dxc.obs.api.util.JwtUtil;
@@ -50,6 +52,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	AccountRepository accountRepo;
+	
+	@Autowired
+	CustomerRepository CustomerRepo;
 
 	@Override
 	public String registerUser(UserRequest userRequest) {
@@ -57,10 +62,10 @@ public class UserServiceImpl implements UserService {
 		String accountNo = null;
 		log.info("Register User method -Start");
 
-		if (userRepository.existsByUserName(userRequest.getUserName())) {
-			log.debug("Error: Username is already in used!");
-			throw new BadRequestException("Error: Username is already in used!");
-		}
+//		if (userRepository.existsByUserName(userRequest.getUserName())) {
+//			log.debug("Error: Username is already in used!");
+//			throw new BadRequestException("Error: Username is already in used!");
+//		}
 
 		if (userRepository.existsByEmail(userRequest.getEmail())) {
 			log.debug("Error: Email is already in use!");
@@ -76,15 +81,36 @@ public class UserServiceImpl implements UserService {
 			throw new BadRequestException("Error: Account type not found!");
 		}
 
-		UserDetails user = UserDetails.builder().userName(userRequest.getUserName()).email(userRequest.getEmail())
-				.gender(userRequest.getGender()).password(passwordEncoder.encode(userRequest.getPassword()))
-				.phoneNumber(userRequest.getPhoneNumber()).build();
+		UserDetails user = UserDetails.builder()
+				.email(userRequest.getEmail())
+				.password(passwordEncoder.encode(userRequest.getPassword()))
+				.build();
 		userId = userRepository.save(user).getUserId();
-
+		
+		
+		
+		
+		
 		if (userId != null) {
-			Account account = Account.builder().accNumber(genarateNumber()).acctype(accTypeOptional.get())
-					.accStatus("open").branch(branchOptional.get()).user(user)
-					.openingBalance(userRequest.getOpeningBalance()).aod(new Date()).build();
+			Customer cust = Customer.builder()
+					.firstName(userRequest.getFirstName())
+					.lastName(userRequest.getLastName())
+					.city(userRequest.getCity())
+					.dob(userRequest.getDob())
+					.phoneNumber(userRequest.getPhoneNumber())
+					.occupation(userRequest.getOccupation())
+					.user(user)
+					.gender(userRequest.getGender()).build();
+			CustomerRepo.save(cust);
+			
+			Account account = Account.builder()
+					.accNumber(genarateNumber())
+					.acctype(accTypeOptional.get())
+					.accStatus("open")
+					.branch(branchOptional.get())
+					.user(user)
+					.openingBalance(userRequest.getOpeningBalance())
+					.aod(new Date()).build();
 			accountNo = accountRepo.save(account).getAccNumber().toString();
 		}
 		log.info("Register User method-End");

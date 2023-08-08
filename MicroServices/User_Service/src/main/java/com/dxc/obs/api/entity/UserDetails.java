@@ -27,16 +27,12 @@ public class UserDetails {
     @SequenceGenerator(name = "user_seq", sequenceName = "USER_SEQ", allocationSize = 1)
 	private Long userId;
 	
-	private String userName;
-	
 	private String password;
 	
 	@Column(unique = true)
 	private String email;
 	
-	private Long phoneNumber;
-	
-	private String gender;
+
 	
 	
 	

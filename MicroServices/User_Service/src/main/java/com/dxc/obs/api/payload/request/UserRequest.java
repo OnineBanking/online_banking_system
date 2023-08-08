@@ -1,13 +1,16 @@
 package com.dxc.obs.api.payload.request;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 import lombok.Data;
 
 @Data
 public class UserRequest {
 	
-	private String userName;
+	private String firstName;
+	
+	private String lastName;
 	
 	private String email;
 	
@@ -22,6 +25,14 @@ public class UserRequest {
 	private BigDecimal openingBalance;
 	
 	private String gender;
+	
+	private String city;
+	
+	private Date dob;
+	
+	private String occupation;
+	
+	
 	
 
 }
