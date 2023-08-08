@@ -31,100 +31,99 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Transactional
 @Slf4j
-public class UserServiceImpl implements UserService{
-	
+public class UserServiceImpl implements UserService {
+
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Autowired
 	private BranchRepository branchRepo;
-	
+
 	@Autowired
 	private JwtUtil jwtUtil;
-	
+
 	@Autowired
 	AccountTypeRepository accountTypeRepo;
-	
+
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-	
+
 	@Autowired
 	AccountRepository accountRepo;
-	
 
 	@Override
 	public String registerUser(UserRequest userRequest) {
 		Long userId = null;
 		String accountNo = null;
-		
-		if (userRepository.existsByUserName(userRequest.getUserName())) {
-			  throw new BadRequestException("Error: Username is already in used!");
-		    }
+		log.info("Register User method -Start");
 
-		    if (userRepository.existsByEmail(userRequest.getEmail())) {
-		    	throw new BadRequestException("Error: Email is already in use!");
-		    }
-		    
-		    
-		    Optional<Branch> branchOptional = branchRepo.findByBranchId(userRequest.getBranch());
-			if(branchOptional.isEmpty()) {
-				throw new BadRequestException("Error: Branch details not found!");
-			}
-			Optional<AccountType> accTypeOptional = accountTypeRepo.findById(userRequest.getAccountType());
-			if(accTypeOptional.isEmpty()) {
-				throw new BadRequestException("Error: Account type not found!");
-			}
-		
-		UserDetails user = UserDetails.builder()
-				.userName(userRequest.getUserName())
-				.email(userRequest.getEmail())
-				.gender(userRequest.getGender())
-				.password(passwordEncoder.encode(userRequest.getPassword()))
+		if (userRepository.existsByUserName(userRequest.getUserName())) {
+			log.debug("Error: Username is already in used!");
+			throw new BadRequestException("Error: Username is already in used!");
+		}
+
+		if (userRepository.existsByEmail(userRequest.getEmail())) {
+			log.debug("Error: Email is already in use!");
+			throw new BadRequestException("Error: Email is already in use!");
+		}
+
+		Optional<Branch> branchOptional = branchRepo.findByBranchId(userRequest.getBranch());
+		if (branchOptional.isEmpty()) {
+			throw new BadRequestException("Error: Branch details not found!");
+		}
+		Optional<AccountType> accTypeOptional = accountTypeRepo.findById(userRequest.getAccountType());
+		if (accTypeOptional.isEmpty()) {
+			throw new BadRequestException("Error: Account type not found!");
+		}
+
+		UserDetails user = UserDetails.builder().userName(userRequest.getUserName()).email(userRequest.getEmail())
+				.gender(userRequest.getGender()).password(passwordEncoder.encode(userRequest.getPassword()))
 				.phoneNumber(userRequest.getPhoneNumber()).build();
 		userId = userRepository.save(user).getUserId();
-		
-		if(userId != null) {
-			Account account = Account.builder()
-					.accNumber(genarateNumber())
-					.acctype(accTypeOptional.get())
-					.accStatus("open")
-					.branch(branchOptional.get())
-					.user(user)
-					.openingBalance(userRequest.getOpeningBalance())
-					.aod(new Date()).build();
+
+		if (userId != null) {
+			Account account = Account.builder().accNumber(genarateNumber()).acctype(accTypeOptional.get())
+					.accStatus("open").branch(branchOptional.get()).user(user)
+					.openingBalance(userRequest.getOpeningBalance()).aod(new Date()).build();
 			accountNo = accountRepo.save(account).getAccNumber().toString();
 		}
-		log.info("Account {} created!",accountNo );
+		log.info("Register User method-End");
+
+		log.info("Account {} created!", accountNo);
 		return accountNo;
-		
-		
+
 	}
+
 	private Long genarateNumber() {
 		Random random = new Random();
-        int randomNumber = 10000000 + random.nextInt(90000000);
+		int randomNumber = 10000000 + random.nextInt(90000000);
 		return Long.valueOf(randomNumber);
 	}
 
 	@Override
 	public String login(loginRequest loginRequest) {
+		log.info("Login service - start");
 		Optional<UserDetails> optionalUser = userRepository.findByEmail(loginRequest.getEmail());
-		
-		if(optionalUser.isEmpty()) {
+
+		if (optionalUser.isEmpty()) {
+			log.debug("User Not Found !");
 			throw new BadRequestException("User Not Found !");
 		}
-		if(passwordEncoder.matches(loginRequest.getPassword(), optionalUser.get().getPassword())) {
+		if (passwordEncoder.matches(loginRequest.getPassword(), optionalUser.get().getPassword())) {
+			log.info("Login service - end");
 			return jwtUtil.generateAccessToken(optionalUser.get());
-		}else {
+		} else {
+			log.debug("Invalid Username Or Password ");
 			throw new BadRequestException("Invalid Username Or Password ");
 		}
-		
 	}
 
 	@Override
 	public ResponseCookie logout() {
+		log.info("Logout service called");
 		ResponseCookie cookie = jwtUtil.getCleanJwtCookie();
 		return cookie;
-		
+
 	}
 
 	@Override
@@ -134,12 +133,13 @@ public class UserServiceImpl implements UserService{
 
 	@Override
 	public Optional<UserDetails> getUserByUsername(String username) {
-		
-Optional<UserDetails> optionalUser = userRepository.findByEmail(username);
-		
-		if(optionalUser.isEmpty()) {
+
+		Optional<UserDetails> optionalUser = userRepository.findByEmail(username);
+
+		if (optionalUser.isEmpty()) {
+			log.debug("User Not Found !");
 			throw new BadRequestException("User Not Found !");
-		}else {
+		} else {
 			return optionalUser;
 		}
 	}
@@ -148,7 +148,5 @@ Optional<UserDetails> optionalUser = userRepository.findByEmail(username);
 	public List<AccountType> getAllAccTypes() {
 		return accountTypeRepo.findAll();
 	}
-
-
 
 }

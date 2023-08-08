@@ -25,10 +25,11 @@ import com.dxc.obs.api.payload.response.ServiceResponse;
 import com.dxc.obs.api.service.UserService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-//import io.swagger.annotations.ApiOperation;
 
 @RestController
+@Slf4j
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 @RequestMapping("/user")
@@ -41,7 +42,7 @@ public class UserController {
 	//@ApiOperation("user signup")
 	@PostMapping("/signup")
 	public ResponseEntity<?> addUser(@RequestBody UserRequest userRequest) {
-
+log.info("signup controller - start");
 		String accNo  = userService.registerUser(userRequest);
 		return ResponseEntity.ok().body(new ResponseEntity<>(ServiceResponse.builder().data(accNo).responseMsg("User Registered Successfully !!").build(),
 				HttpStatus.CREATED));
@@ -50,6 +51,7 @@ public class UserController {
 	//@ApiOperation("user login")
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@RequestBody loginRequest loginRequest) {
+		log.info("login controller - start");
 		String token = userService.login(loginRequest);
 
 		return ResponseEntity.ok().body(new ResponseEntity<>(Response.builder().token(token).responseMsg("Login Successfully.").build(),
@@ -59,6 +61,7 @@ public class UserController {
 	//@ApiOperation("user signout")
 	@PostMapping("/signout")
 	public ResponseEntity<?> logoutUser() {
+		log.info("signout controller - start");
 		ResponseCookie cookie = userService.logout();
 		return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(new ResponseEntity<>(
 				ServiceResponse.builder().responseMsg("You've been signed out!!!").build(), HttpStatus.OK));
@@ -94,6 +97,7 @@ public class UserController {
 	 
 	 @GetMapping("/getUserByName")
 	    public ResponseEntity<ResponseEntity<Optional<UserDetails>>> getUserByUsername(String username) {
+		 log.info("getUserByUsername controller - start");
 		 Optional<UserDetails> user = userService.getUserByUsername(username);
 
 	        if (user != null) {

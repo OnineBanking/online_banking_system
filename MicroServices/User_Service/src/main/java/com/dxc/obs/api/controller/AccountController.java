@@ -13,7 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.dxc.obs.api.entity.Account;
 import com.dxc.obs.api.service.AccountService;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
+@Slf4j
 @CrossOrigin(origins = "*")
 @RequestMapping("/account")
 public class AccountController {
@@ -23,6 +26,7 @@ public class AccountController {
 	
 	 @GetMapping("/getAccInfoById")
 	    public ResponseEntity<ResponseEntity<Optional<Account>>> getAccInfoById(Long userId) {
+		 log.info("getAccInfoById service - start");
 		 Optional<Account> accInfo = accountService.getAccInfoById(userId);
 
 	        if (accInfo != null) {
