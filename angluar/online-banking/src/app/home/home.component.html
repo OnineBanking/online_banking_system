@@ -1,0 +1,364 @@
+<div class="header">
+  <div class="logo"><img src="../assets/images/Obs_logo.jpg" alt="OBS"></div>
+  <div class="welcome">Welcome, {{username}} (Logged in at {{ loginTime }})</div>
+  <div class="links">
+    <a *ngIf="roleName === 'Admin'" href="javascript:void(0);" (click)="openNewAccountForm()">New Account</a>
+    <a (click)="viewUserProfileDetails()" href="javascript:void(0);">Profile Details</a>
+    <div class="profile-details-popup" *ngIf="showProfileDetails">
+      <p><b>Username:</b> {{ username }}</p>
+      <p><b>Email:</b> {{ email }}</p>
+      <p><b>phoneNumber:</b> {{ phoneNumber }}</p>
+      <button (click)="logout()">Logout</button>
+      <button (click)="hideProfileDetails()">Close</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="tabs">
+  <ul>
+
+    <li (click)="selectTab('accounts')" [class.active]="currentTab === 'accounts'">Account Summary</li>
+    <li (click)="selectTab('fundTransfer')" [class.active]="currentTab === 'fundTransfer'">Fund Transfer</li>
+    <li (click)="selectTab('billPayRecharge')" [class.active]="currentTab === 'billPayRecharge'">BillPay & Recharge</li>
+    <li (click)="selectTab('cards')" [class.active]="currentTab === 'cards'">Cards</li>
+    <li (click)="selectTab('loans')" [class.active]="currentTab === 'loans'">Loans</li>
+
+
+  </ul>
+
+  <div class="tab-content">
+    <div *ngIf="currentTab === 'accounts'">
+      <h2>Account Details</h2>
+      <div class="label-value-row" *ngFor="let account of accounts">
+        <div class="row">
+          <div class="label">Account Number</div>
+          <div class="label">Branch</div>
+          <div class="label">Name</div>
+          <div class="label">Balance</div>
+          <div class="label"></div> <!-- Empty div for spacing -->
+        </div>
+
+        <div class="row">
+          <div class="value">{{ account.accountNumber }}</div>
+          <div class="value">{{ account.branch }}</div>
+          <div class="value">{{ account.name }}</div>
+          <div class="value">{{ account.balance }}</div>
+          <div class="value">
+            <button (click)="viewTransactionHistory()">View</button>
+          </div>
+        </div>
+      </div>
+
+
+      <div *ngIf="showHistory">
+
+        <h3>Transaction History</h3>
+        <table class="table table-bordered table-striped">
+          <thead class="thead-light">
+            <tr>
+              <th>Trasaction Id</th>
+              <th>Trasaction Type</th>
+              <th>Transfer Type</th>
+              <th>Transaction Amount</th>
+              <th>Trasaction Date</th>
+              <th>Account Number</th>
+              <th>Comments</th>
+              <th>Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let transaction of transactionHistory | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage }">
+              <td>{{ transaction.id }}</td>
+              <td>{{ transaction.type }}</td>
+              <td>{{ transaction.transferType }}</td>
+              <td>{{ transaction.amount }}</td>
+              <td>{{ transaction.date }}</td>
+              <td>{{ transaction.accNumber }}</td>
+              <td>{{ transaction.Comments }}</td>
+              <td>{{ transaction.balance }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+
+        <pagination-controls (pageChange)="currentPage = $event"></pagination-controls>
+
+      </div>
+    </div>
+
+    <div class="tab-content">
+      <div *ngIf="currentTab === 'fundTransfer'">
+        <h2>Fund Transfer</h2>
+        <div>
+          <label>Select Transaction Type:</label>
+          <select [(ngModel)]="selectedTransactionType" name="transactionType">
+            <option value="" selected>Select Transaction Type</option>
+            <option value="WithinTheBank">Within the Bank</option>
+            <option value="NEFT">NEFT</option>
+            <option value="RTGS">RTGS</option>
+          </select>
+        </div>
+
+        <div *ngIf="selectedTransactionType">
+          <h3>Fund Transfer Form</h3>
+          <form (submit)="transferMoney(transferForm)" #transferForm="ngForm">
+            <label>Type of Account</label>
+            <select [(ngModel)]="selectedAccountType" name="accountType" (change)="onAccountTypeChange()">
+              <!-- <option value="saving">Saving Account</option>
+              <option value="current">Current Account</option> -->
+              <option *ngFor="let accountType of accountTypes" [value]="accountType.accTypeName">
+                {{ accountType.accTypeName }}
+              </option>
+            </select>
+
+            <label>From Account Number</label>
+            <!-- <input type="text" name="fromAccountNumber" [(ngModel)]="transfer.fromAccountNumber" > -->
+            <select [(ngModel)]="fromAccountNumber" name="fromAccountNumber">
+              <option *ngFor="let accountNumber of accountNumbers" [value]="accountNumber">
+                {{ accountNumber }}
+              </option>
+            </select>
+            <div
+              *ngIf="transferForm.controls['fromAccountNumber']?.invalid && transferForm.controls['fromAccountNumber']?.touched"
+              class="error-message">
+              fromAccountNumber is required.
+            </div>
+
+            <div>
+              <label>To Account Number</label>
+  
+              <input type="text" class="form-control" placeholder='enter account number' name="toAccountNumber" [(ngModel)]="toAccountNumber" required
+                maxlength="8" minlength="6">
+              <div
+                *ngIf="transferForm.controls['toAccountNumber']?.invalid && transferForm.controls['toAccountNumber']?.touched"
+                class="error-message">
+                toAccountNumber is required.
+              </div>
+              <div *ngIf="transferForm.controls['toAccountNumber']?.errors?.['minlength']">
+                toAccountNumber minimum Length is 6
+              </div>
+              <div *ngIf="transferForm.controls['toAccountNumber']?.errors?.['maxlength']">
+                toAccountNumber minimum Length is 8
+              </div>
+            </div>       
+
+            <div>
+            <label>Amount</label>
+            <input type="number" name="amount" [(ngModel)]="amount"required>
+            <div
+            *ngIf="transferForm.controls['amount']?.invalid && transferForm.controls['amount']?.touched"
+            class="error-message">
+            Amount is required.
+          </div>
+        </div>
+
+            <label>Medium of Transaction</label>
+
+            <input type="text" name="mediumOfTransaction" [(ngModel)]="selectedTransactionType" [disabled]="true">
+
+            <label>Comments</label>
+            <textarea name="comments" [(ngModel)]="formComments"></textarea>
+
+            <button (click)="clearForm(transferForm)">Cancel</button>
+
+            <div class="button">
+              <input type="submit" [disabled]="transferForm.invalid" value="Transfer">
+
+            </div>
+
+
+          </form>
+        </div>
+      </div>
+    </div>
+
+
+    <div *ngIf="currentTab === 'billPayRecharge'">
+      <h2>BillPay & Recharge</h2>
+      <div>
+        <label>Select Payment Type:</label>
+        <select [(ngModel)]="selectedPaymentType" name="paymentType">
+          <option value="" selected>Select payment Type</option>
+          <option value="Credit">card payment</option>
+          <option value="loan">Loan payment</option>
+          <option value="Mobile Recharge">Mobile Recharge</option>
+        </select>
+      </div>
+
+      <div *ngIf="selectedPaymentType === 'Credit'">
+        <div class="container">
+          <h2>Credit Card Payment</h2>
+          <form (submit)="CreditCard_Pay(creditPayform)" #creditPayform="ngForm">
+
+            <div class="form-group">
+              <label>Account Number:</label>
+              <input type="tel" id="accountnumber" name="accountnumber" placeholder="Enter account number"
+               [(ngModel)]="defaultAccNo"    disabled> 
+              <!-- <div *ngIf="creditPayform.controls['accountnumber']?.invalid && creditPayform.controls['accountnumber']?.touched"
+                class="error-message">
+                account Number is required (10 digits only).
+              </div> -->
+            </div>
+          
+            <div class="form-group">
+              <label>Card Number:</label>
+              <input type="tel" id="cardnumber" name="cardnumber" placeholder="Enter card number"
+                [(ngModel)]="creditPay.cardnumber" required pattern="[0-9]{16}">
+              <div *ngIf="creditPayform.controls['cardnumber']?.invalid && creditPayform.controls['cardnumber']?.touched"
+                class="error-message">
+                Card Number is required (16 digits only).
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Cardholder Name:</label>
+              <input type="text" id="cardholdername" name="cardholdername" placeholder="Enter cardholder name"
+                [(ngModel)]="creditPay.cardholdername" required />
+              <div *ngIf="creditPayform.controls['cardholdername']?.invalid && creditPayform.controls['cardholdername']?.touched"
+                class="error-message">
+                Cardholder Name is required.
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Expiration Month:</label>
+              <select id="expirationmonth" name="expirationmonth" required min="0" max="12">
+                <option value="" disabled selected>Select Month</option>
+                <option value="01">January</option>
+                <option value="02">February</option>
+                <option value="03">March</option>
+                <option value="04">April</option>
+                <option value="05">May</option>
+                <option value="06">June</option>
+                <option value="07">July</option>
+                <option value="08">August</option>
+                <option value="09">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+                <!-- Add other months here -->
+              </select>
+              <div *ngIf="creditPayform.controls['expirationmonth']?.invalid && creditPayform.controls['expirationmonth']?.touched"
+              class="error-message">
+              Expiration Month is required.
+            </div>
+
+            </div>
+            <div class="form-group">
+              <label for="expiration_year">Expiration Year:</label>
+              <select id="expiration_year" name="expiration_year" id="expiration_year" required min="2023" max="2028">
+                <option value="" disabled selected>Select Year</option>
+                <option value="2023">2023</option>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
+                <!-- Add other years here -->
+              </select>
+            </div>
+            <div class="form-group">
+              <label>CVV:</label>
+              <input type="password"  name="cvv" id ="cvv" placeholder="Enter CVV"  
+              [(ngModel)]="creditPay.cvv" required pattern="[0-9]{3}">
+              <div *ngIf="creditPayform.controls['cvv']?.invalid && creditPayform.controls['cvv']?.touched"
+                class="error-message">
+                CVV Number is required (3 digits only).
+              </div>
+            </div>
+            <button type="submit" class="btn">Pay Now</button>
+          </form>
+        </div>
+      </div>
+
+
+      <div *ngIf="selectedPaymentType === 'Mobile Recharge'">
+        <div class="container">
+          <h2>Mobile Recharge Form </h2>
+          <form (submit)="payNow(payform)" #payform="ngForm">
+            <div class="form-group">
+              <label>Account Number:</label>
+              <input type="tel" id="accountnumber" name="accountnumber" placeholder="Enter account number"
+               [(ngModel)]="Pay.accountnumber" required pattern="[0-9]{10}">
+              <div *ngIf="payform.controls['accountnumber']?.invalid && payform.controls['accountnumber']?.touched"
+                class="error-message">
+                account Number is required (10 digits only).
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Mobile Number:</label>
+              <input type="tel" name="mobileNumber" id="mobileNumber" [(ngModel)]="Pay.mobileNumber" placeholder="Enter Mobile number" required pattern="[0-9]{10}">
+              <div *ngIf="payform.controls['mobileNumber']?.invalid && payform.controls['mobileNumber']?.touched"
+                class="error-message">
+                Mobile Number is required (10 digits only).
+              </div>
+            </div> 
+            <div class="container">
+              <label>Recharge Amount:</label>
+              <input type="number" name="amount" placeholder="Enter Recharge Amount" [(ngModel)]="Pay.amount" required>
+              <div *ngIf="payform.controls['amount']?.invalid && payform.controls['amount']?.touched" class="error-message">
+                Recharge Amount is required.
+              </div>
+            </div> 
+            <div class="container"></div>        
+            <button type="submit" class="btn">Recharge Now</button> 
+          </form>   
+      </div>
+      </div>
+
+      <div *ngIf="selectedPaymentType === 'loan'">
+        <div class="container">
+          <h2>Loan Payment Form</h2>
+          <form (submit)="loan_Pay(loanpayform)" #loanpayform="ngForm">
+
+            <div class="form-group">
+              <label>Account Number:</label>
+              <input type="tel" id="accountnumber" name="accountnumber" placeholder="Enter account number"
+               [(ngModel)]="loanPay.accountnumber" required pattern="[0-9]{10}">
+              <div *ngIf="loanpayform.controls['accountnumber']?.invalid && loanpayform.controls['accountnumber']?.touched"
+                class="error-message">
+                account Number is required (10 digits only).
+              </div>
+            </div>
+          <div class="form-group">
+            <label>EMI_Number:</label>
+            <input type="tel" id="EMINumber" name="EMINumber" placeholder="Enter EMINumber" 
+             [(ngModel)]=" loanPay.emiNumber" required pattern="[0-9]{15}">
+            <div *ngIf="loanpayform.controls['EMINumber']?.invalid && loanpayform.controls['EMINumber']?.touched"
+              class="error-message">
+             EMI Number is required (15 digits only).
+            </div>
+          </div>
+          <div class="container">
+            <label>Loan Amount:</label>
+            <input type="number" name="LoanAmount" placeholder="Enter Loan Amount"  [(ngModel)]=" loanPay.Amount" required/>
+          <div *ngIf="loanpayform.controls['LoanAmount']?.invalid && loanpayform.controls['LoanAmount']?.touched" class="error-message">
+            Loan Amount is required.
+          </div>
+          </div>
+          <div class="container"></div>
+          <button type="submit" class="btn">Pay Now</button>
+        </form>
+        </div>
+      </div>
+      
+  </div>
+
+    <!-- Specific form for recharge -->
+
+
+    <div *ngIf="currentTab === 'cards'">
+      <h2>Cards</h2>
+      <div>
+        <h3>Active Cards:</h3>
+        <!-- Display active cards and apply for new cards -->
+      </div>
+    </div>
+
+    <div *ngIf="currentTab === 'loans'">
+      <h2>Loans</h2>
+      <div>
+        <h3>Existing Loans:</h3>
+        <!-- Display existing loan details and apply for new loans -->
+      </div>
+    </div>
