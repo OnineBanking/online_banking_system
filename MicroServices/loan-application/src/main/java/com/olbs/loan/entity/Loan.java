@@ -27,8 +27,19 @@ public class Loan {
     private double ltenure;
     private double lemi; 
     private String status;
+    private String interest;
     
-    public String getStatus() {
+    public String getInterest() {
+		return interest;
+	}
+
+
+	public void setInterest(String interest) {
+		this.interest = interest;
+	}
+
+
+	public String getStatus() {
 		return status;
 	}
 

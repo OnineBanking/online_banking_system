@@ -43,7 +43,7 @@ public class LoanService implements iLoanService {
 			loanDetails  = new Loan();
 			loanDetails.setBid(loan.getBid());
 			loanDetails.setLoan_amount(loan.getLoan_amount());
-			loanDetails.setLemi(emiCalculator(loan));
+			loanDetails.setLemi(loan.getLemi());
 			loanDetails.setLtenure(loan.getLtenure());
 			loanDetails.setStatus(loan.getStatus());
 			loanDetails.setCust(cust);
