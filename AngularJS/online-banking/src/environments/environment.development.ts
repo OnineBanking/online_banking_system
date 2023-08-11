@@ -1,4 +1,8 @@
 export const environment = {
     production: false,
-    baseUrlLoginService:'http://localhost:9091/user/login'
+    baseUrl: 'http://localhost:9091/',
+    baseUrl1:'http://localhost:9092/'
+   
+   
 };
+

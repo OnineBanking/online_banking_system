@@ -1,6 +1,7 @@
 <div class="header">
   <div class="logo"><img src="../assets/images/Obs_logo.jpg" alt="OBS"></div>
-  <div class="welcome">Welcome, {{username}} (Logged in at {{ loginTime }})</div>
+  <!-- <div class="welcome">Welcome, {{username}} (Logged in at {{ loginTime }})</div> -->
+  <div class="welcome">Welcome, {{username}}</div>
   <div class="links">
     <a *ngIf="roleName === 'Admin'" href="javascript:void(0);" (click)="openNewAccountForm()">New Account</a>
     <a (click)="viewUserProfileDetails()" href="javascript:void(0);">Profile Details</a>
@@ -41,7 +42,7 @@
 
         <div class="row">
           <div class="value">{{ account.accountNumber }}</div>
-          <div class="value">{{ account.branch }}</div>
+          <div class="value">{{ account.branchName }}</div>
           <div class="value">{{ account.name }}</div>
           <div class="value">{{ account.balance }}</div>
           <div class="value">
@@ -52,8 +53,8 @@
 
 
       <div *ngIf="showHistory">
-
-        <h3>Transaction History</h3>
+        <div class="label">Transaction History</div>
+        <!-- <h2>Transaction History</h2> -->
         <table class="table table-bordered table-striped">
           <thead class="thead-light">
             <tr>
@@ -71,13 +72,15 @@
             <tr
               *ngFor="let transaction of transactionHistory | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage }">
               <td>{{ transaction.id }}</td>
-              <td>{{ transaction.type }}</td>
-              <td>{{ transaction.transferType }}</td>
-              <td>{{ transaction.amount }}</td>
-              <td>{{ transaction.date }}</td>
+              <td>{{ transaction.mediumOfTrans }}</td>
+              <td>{{ transaction.transType }}</td>
+              <td>{{ transaction.transAmount }}</td>
+              <td>{{ transaction.dot }}</td>
               <td>{{ transaction.accNumber }}</td>
-              <td>{{ transaction.Comments }}</td>
+              <td>{{ transaction.description }}</td>
               <td>{{ transaction.balance }}</td>
+
+
             </tr>
           </tbody>
         </table>
@@ -92,9 +95,9 @@
       <div *ngIf="currentTab === 'fundTransfer'">
         <h2>Fund Transfer</h2>
         <div>
-          <label>Select Transaction Type:</label>
+          <label>Select Transfer Type:</label>
           <select [(ngModel)]="selectedTransactionType" name="transactionType">
-            <option value="" selected>Select Transaction Type</option>
+            <option value="" selected>Select Transfer Type</option>
             <option value="WithinTheBank">Within the Bank</option>
             <option value="NEFT">NEFT</option>
             <option value="RTGS">RTGS</option>
@@ -102,47 +105,59 @@
         </div>
 
         <div *ngIf="selectedTransactionType">
-          <h3>Fund Transfer Form</h3>
+          <!-- <h3>Fund Transfer Form</h3>    -->
           <form (submit)="transferMoney(transferForm)" #transferForm="ngForm">
-            <label>Type of Account</label>
-            <select [(ngModel)]="selectedAccountType" name="accountType" (change)="onAccountTypeChange()">
-              <!-- <option value="saving">Saving Account</option>
-              <option value="current">Current Account</option> -->
-              <option *ngFor="let accountType of accountTypes" [value]="accountType.accTypeName">
-                {{ accountType.accTypeName }}
-              </option>
-            </select>
+            <div class="title">Fund Transfer</div>
+            <div class="form-row">
+              <div class="input-box">
+                <label>Type of Account</label>
+                <select [(ngModel)]="selectedAccountType" name="accountType" (change)="onAccountTypeChange()">
+                  <option *ngFor="let accountType of accountTypes" [value]="accountType.accTypeName">
+                    {{ accountType.accTypeName }}
+                  </option>
+                </select>
+              </div>
 
-            <label>From Account Number</label>
-            <!-- <input type="text" name="fromAccountNumber" [(ngModel)]="transfer.fromAccountNumber" > -->
-            <select [(ngModel)]="transfer.fromAccountNumber" name="fromAccountNumber">
-              <option *ngFor="let accountNumber of accountNumbers" [value]="accountNumber">
-                {{ accountNumber }}
-              </option>
-            </select>
-            <label>To Account Number</label>
-            <input type="text" name="toAccountNumber" [(ngModel)]="transfer.toAccountNumber" maxlength="8">
+              <div class="input-box">
+                <label>From Account Number</label>
+                <select [(ngModel)]="transfer.fromAccountNumber" name="fromAccountNumber">
+                  <option *ngFor="let accountNumber of accountNumbers" [value]="accountNumber">
+                    {{ accountNumber }}
+                  </option>
+                </select>
+              </div>
+            </div>
 
-            <label>Amount</label>
-            <input type="number" name="amount" [(ngModel)]="transfer.amount">
+            <div class="form-row">
+              <div class="input-box">
+                <label>To Account Number</label>
+                <input type="text" name="toAccountNumber" [(ngModel)]="transfer.toAccountNumber" maxlength="8">
+              </div>
 
-            <label>Medium of Transaction</label>
+              <div class="input-box">
+                <label>Amount</label>
+                <input type="number" name="amount" [(ngModel)]="transfer.amount">
+              </div>
+            </div>
 
-            <input type="text" name="mediumOfTransaction" [(ngModel)]="selectedTransactionType" [disabled]="true">
+            <div class="form-row">
+              <div class="input-box">
+                <label>Medium of Transaction</label>
+                <input type="text" name="mediumOfTransaction" [(ngModel)]="selectedTransactionType" [disabled]="true">
+              </div>
 
-            <label>Comments</label>
-            <textarea name="comments" [(ngModel)]="transfer.comments"></textarea>
-
-            <button (click)="clearForm(transferForm)">Cancel</button>
+              <div class="input-box">
+                <label>Comments</label>
+                <textarea name="comments" [(ngModel)]="transfer.comments"></textarea>
+              </div>
+            </div>
 
             <div class="button">
               <input type="submit" [disabled]="transferForm.invalid" value="Transfer">
-
             </div>
-
-
-
-
+            <div class="button">
+              <input type="submit" (click)="clearForm(transferForm)" value="Cancel">
+            </div>
           </form>
         </div>
       </div>
@@ -163,8 +178,9 @@
 
       <div *ngIf="selectedPaymentType === 'Credit'">
         <div class="container">
-          <h2>Credit Card Payment</h2>
+       
           <form (submit)="CreditCard_Pay(creditPayform)" #creditPayform="ngForm">
+            <div class="title">Credit Card Payment</div>
             <div class="form-group">
               <label for="card_number">Card Number:</label>
               <input type="number" id="card_number" name="card_number" placeholder="Enter card number"
@@ -219,53 +235,59 @@
 
       <div *ngIf="selectedPaymentType === 'Mobile Recharge'">
         <div class="container">
-          <h2>Mobile Recharge Form </h2>
           <form (submit)="payNow(payform)" #payform="ngForm">
+            <div class="title">Mobile Recharge</div>
             <div class="form-group">
               <label for="mobile_number">Mobile Number:</label>
-              <input type="tel" id="mobile_number" name="mobile_number" placeholder="Enter mobile number"
-                [(ngModel)]=" mobileNumber" required pattern="[0-9]{10}">
-              <div *ngIf="payform.controls[' mobileNumber']?.invalid && payform.controls[' mobileNumber']?.touched"
+              <input type="text" id="mobile_number" name="mobile_number" placeholder="Enter Mobile Number"
+              [(ngModel)]="mobileNumber" required pattern="[0-9]{10}" maxlength="10"/>
+                <div *ngIf="payform.controls[' mobileNumber']?.invalid && payform.controls[' mobileNumber']?.touched"
                 class="error-message">
-                Mobile Number is required (10 digits only).
+               Mobile Number is required.
               </div>
             </div>
             <div class="form-group">
-              <label for="recharge_amount">Recharge Amount (USD):</label>
-              <input type="number" id="recharge_amount" name="recharge_amount" placeholder="Enter recharge amount"
-                required />
+              <label for="recharge_amount">Recharge Amount:</label>
+              <input type="text" id="recharge_amount" name="recharge_amount" placeholder="Enter Rechanrge Amount"
+              [(ngModel)]="recharge_amount" required />
+                <div *ngIf="payform.controls['recharge_amount']?.invalid && payform.controls[' recharge_amount']?.touched"
+                class="error-message">
+                Recharge amount is required.
+              </div>
             </div>
-            <button type="submit" class="btn">Recharge Now</button>
+            <button type="submit" class="btn">Pay Now</button>
           </form>
         </div>
       </div>
 
       <div *ngIf="selectedPaymentType === 'loan'">
         <div class="container">
-          <h2>Loan Payment Form</h2>
           <form (submit)="loan_Pay(loanpayform)" #loanpayform="ngForm">
-          <div class="form-group">
-            <label for="EMI_Number">EMI_Number:</label>
-            <input type="tel" id="EMI_Number" name="EMI_Number" placeholder="Enter EMI_Number" required 
-             [(ngModel)]=" EMI_Number" required pattern="[0-9]{15}">
-            <div *ngIf="loanpayform.controls[' EMI_Number']?.invalid && loanpayform.controls[' EMI_Number']?.touched"
-              class="error-message">
-             EMI Number is required (10 digits only).
+            <div class="title">Loan Payment</div>
+            <label></label>
+            <div class="form-group">
+              <label for="EMI_Number">Loan Number:</label>
+              <input type="text" id="EMI_Number" name="EMI_Number" placeholder="Enter Loan Number"
+              [(ngModel)]="EMI_Number" required pattern="[0-9]{10}" maxlength="10"/>
+                <div *ngIf="loanpayform.controls['EMI_Number']?.invalid && loanpayform.controls['EMI_Number']?.touched"
+                class="error-message">
+               Loan Number is required.
+              </div>
             </div>
-          </div>
-          <div class="container">
-            <label for="Loan_Amount">Loan Amount:</label>
-            <input type="number" id="Loan_Amount" name="Loan_Amount" placeholder="Enter Loan Amount" required />
-          </div>
-          <button type="submit" class="btn">Pay Now</button>
-        </form>
+            <div class="form-group">
+              <label for="Loan_Amount">EMI Amount:</label>
+              <input type="text" id="Loan_Amount" name="Loan_Amount" placeholder="Enter Emi Amount"
+              [(ngModel)]="recharge_amount" required />
+                <div *ngIf="loanpayform.controls['Loan_Amount']?.invalid && loanpayform.controls[' Loan_Amount']?.touched"
+                class="error-message">
+                Emi amount is required.
+              </div>
+            </div>
+            <button type="submit" class="btn">Pay Now</button>
+          </form>
         </div>
       </div>
-      
-  </div>
-
-    <!-- Specific form for recharge -->
-
+    </div>
 
     <div *ngIf="currentTab === 'cards'">
       <h2>Cards</h2>
@@ -278,7 +300,107 @@
     <div *ngIf="currentTab === 'loans'">
       <h2>Loans</h2>
       <div>
-        <h3>Existing Loans:</h3>
-        <!-- Display existing loan details and apply for new loans -->
+        <label>Select Action Type:</label>
+        <select [(ngModel)]="selectedLoanType" name="transactionType">
+          <option value="" selected>--Select--</option>
+          <option value="applyLoan">Apply Loan</option>
+          <option value="loanList">Loans List</option>
+        </select>
       </div>
+
+      <div *ngIf="selectedLoanType === 'applyLoan'">
+        <!-- Loan Apply Form -->
+        <div class="loan-apply-form">
+          <form (submit)="applyForLoan(loanApplyForm)" #loanApplyForm="ngForm">
+            <div class="title">Apply for a Loan</div>
+            <div class="form-row">
+
+              <div class="input-box">
+                <label>Associated Account</label>
+                <select [(ngModel)]="loanApplication.associatedAccount" name="associatedAccount" required>
+                  <option *ngFor="let account of accounts" [value]="account.accountNumber">
+                    {{ account.accountNumber }}
+                  </option>
+                </select>
+              </div>
+
+              <div class="input-box">
+                <label>Loan Amount</label>
+                <input type="number" name="loanAmount" [(ngModel)]="loanApplication.loanAmount" (input)="calculateEmi()"
+                  required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="input-box">
+                <label>Interest Rate (%)</label>
+                <input type="number" name="interestRate" [(ngModel)]="loanApplication.interestRate"
+                  (input)="calculateEmi()" required>
+              </div>
+
+              <div class="input-box">
+                <label>Term Length (In Years)</label>
+                <input type="number" name="termLength" [(ngModel)]="loanApplication.termLength" (input)="calculateEmi()"
+                  required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="input-box">
+                <label>EMI per Month</label>
+                <input type="text" name="emiPerMonth" [(ngModel)]="loanApplication.emiPerMonth" [readonly]="true">
+              </div>
+            </div>
+
+            <div class="button">
+              <button type="submit" [disabled]="loanApplyForm.invalid">Apply</button>
+              <button type="button" (click)="clearLoanApplyForm()">Cancel</button>
+            </div>
+          </form>
+        </div>
+</div>
+
+<div *ngIf="selectedLoanType === 'loanList'">
+  <div class="loan-list">
+    <table class="table table-bordered table-striped">
+      <thead class="thead-light">
+        <tr>
+          <th>Loan Number</th>
+          <th>Loan Amount</th>
+          <th>EMI(Per Month)</th>
+          <th>Rate Of Interest</th>
+          <th>Tenture</th>
+          <th>Status</th>
+          <th>Action</th>
+         
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let loan of loanHistory | paginate: { itemsPerPage: itemsPerPage, currentPage: currentPage }">
+          <td>{{ loan.loanId }}</td>
+          <td>{{ loan.mediumOfTrans }}</td>
+          <td>{{ loan.transType }}</td>
+          <td>{{ loan.transAmount }}</td>
+          <td>{{ loan.dot }}</td>
+          <td>{{ loan.dot }}</td>
+          <!-- <td><button (click)="performLoanAction(loan)">Action</button></td> -->
+          <td><button (click)=clearLoanApplyForm()>Action</button></td>
+          
+
+
+        </tr>
+      </tbody>
+    </table>
+
+
+    <pagination-controls (pageChange)="currentPage = $event"></pagination-controls>
+  </div>
+</div>
+
     </div>
+  </div>
+
+
+
+<app-footer></app-footer>

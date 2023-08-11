@@ -18,6 +18,8 @@ body {
 h1 {
 	font-weight: bold;
 	margin: 0;
+	font-size: 25px;
+	margin-top: 25px;
 }
 
 h2 {

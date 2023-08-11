@@ -3,6 +3,9 @@ import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SharedDataService } from '../shared-data.service';
+import { Token } from '@angular/compiler';
+import { ObsService } from '../service/obs.service';
+import { environment } from '../../environments/environment'
 
 interface LoginResponse {
   headers: any;
@@ -24,7 +27,12 @@ export class LoginComponent {
   password: string = '';
   rememberMe: boolean = false;
 
-  constructor(private http: HttpClient, private router: Router, private snackBar: MatSnackBar, private sharedDataService: SharedDataService) { }
+  serviceUrl = environment.baseUrl;
+
+private userId = '';
+  constructor(private http: HttpClient, private router: Router, private snackBar: MatSnackBar, private sharedDataService: SharedDataService,
+    private service:ObsService) {}
+
 
   login() {
     const loginData = {
@@ -34,13 +42,15 @@ export class LoginComponent {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json'
     });
-    this.http.post<LoginResponse>('http://localhost:9091/user/login', loginData, { headers }).subscribe(
+    this.http.post<LoginResponse>(this.serviceUrl + 'user/login', loginData, { headers }).subscribe(
       response => {
         if (response.statusCodeValue === 200) {
           // Handle successful login response
           this.displaySuccessMessage(response.body.responseMsg);
           this.sharedDataService.setToken(response.body.token);
+          localStorage.setItem('token', response.body.token);
           this.fetchUserInfo(this.email);
+         
 
 
         }
@@ -63,6 +73,8 @@ export class LoginComponent {
     );
   }
 
+
+
   displaySuccessMessage(message: string): void {
     this.snackBar.open(message, 'Close', {
       verticalPosition: 'top',
@@ -80,14 +92,33 @@ export class LoginComponent {
   }
 
   fetchUserInfo(username: string) {
-    const url = `http://localhost:9091/user/getUserByName?username=${encodeURIComponent(username)}`;
-    this.http.get<any>(url).subscribe(
+    this.http.get<any>(this.serviceUrl +`user/getUserByName?username=${encodeURIComponent(username)}`).subscribe(
       response => {
         if (response.statusCodeValue === 200) {
           this.sharedDataService.setUsername(response.body.userName);
           this.sharedDataService.setEmail(response.body.email);
           this.sharedDataService.setPhoneNumber(response.body.phoneNumber);
-          this.sharedDataService.setRoleName(response.body.role.roleName);
+          ///this.sharedDataService.setUserId(response.body.userId);
+          localStorage.setItem('userId' ,response.body.userId);
+          ///this.fetchAccountDetails(response.body.userId, this.sharedDataService.getToken());
+          this.service.getAccountInfo().subscribe(
+            (response: any) => {
+              // Handle the response here if necessary
+              localStorage.setItem('accNo' ,response.body.accNumber);
+              localStorage.setItem('branchName' ,response.body.branch.branchName);
+              localStorage.setItem('userName' ,response.body.cust.firstName +' ' +response.body.cust.lastName);
+              localStorage.setItem('balance' ,response.body.openingBalance);
+              localStorage.setItem('mobile' ,response.body.cust.phoneNumber );
+              localStorage.setItem('custId' ,response.body.cust.custId );
+              
+
+              console.log(response.body.accNumber);
+            },
+            (error) => {
+              // Handle errors here
+              console.error(error);
+            }
+          )
           this.redirectToHomePage();
         }
 
@@ -109,6 +140,40 @@ export class LoginComponent {
       }
     );
   }
+
+
+  // fetchAccountDetails(userId: string, jwtToken: string) {
+  //   console.log('Token ', jwtToken);
+  //  debugger
+  //   const url = `http://localhost:9091/account/getAccInfoById?userId=${encodeURIComponent(userId)}`;
+  //   this.http.get<any>(url).subscribe(
+  //     response => {
+  //       if (response.statusCodeValue === 200) {
+  //         this.sharedDataService.setUsername(response.body.userName);
+  //         this.sharedDataService.setEmail(response.body.email);
+  //         this.sharedDataService.setPhoneNumber(response.body.phoneNumber);
+  //         this.sharedDataService.setUserId(response.body.userId);
+
+  //       }
+
+  //     },
+  //     error => {
+  //       // Handle login error
+  //       console.error('Login Error:', error);
+  //       if (error.status === 400) {
+  //         if (error.error && error.error.responseMsg) {
+  //           this.displayLoginMessage(error.error.responseMsg, 'red');
+  //         } else {
+  //           this.displayLoginMessage('Unauthorized: Invalid email', 'red');
+  //         }
+  //       } else if (error.status === 404) {
+  //         this.displayLoginMessage('Not Found: API endpoint not found', 'red');
+  //       } else {
+  //         this.displayLoginMessage('An error occurred. Please try again later.', 'red');
+  //       }
+  //     }
+  //   );
+  // }
   redirectToRegister() {
     this.router.navigate(['/register']);
   }

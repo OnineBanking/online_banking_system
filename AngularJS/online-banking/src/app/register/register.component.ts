@@ -2,13 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
+import { FormBuilder, FormGroup, Validators,AbstractControl, ValidatorFn, ValidationErrors } from '@angular/forms';
+import { environment } from '../../environments/environment'
 
 interface SignUpResponse {
   headers: any;
   body: {
     responseMsg: string;
-    token: string;
+    data: string;
   };
   statusCode: string;
   statusCodeValue: number;
@@ -23,17 +24,90 @@ interface Role {
   styleUrls: ['./register.component.css']
 })
 
-export class RegisterComponent  {
-  username: string ='';
+export class RegisterComponent  implements OnInit {
+  serviceUrl = environment.baseUrl;
+
+  registerForm!: FormGroup;
+  firstName: string ='';
+  lastName: string ='';
+  
   email: string='';
   password: string='';
   confirmPassword: string = '';
   phoneNumber: string='';
   roleName: string='';
+  branch: string='';
+  accountType: string='';
+  openingBalance: string='';
  gender: string ='';
+ selectedRole: string = 'User';
+ accountTypes: any[] = [];
+ branches: any[] = [];
+  selectedAccountType: string = '';
+  selectedBranch: string =';'
+  branchName: string='';
+  branchId: string ='';
+  dateOfBirth: string ='';
+  city: string =''
+  occupation: string =''
 
-  constructor(private http: HttpClient, private router: Router,private snackBar: MatSnackBar) {}
+  
+  constructor(private http: HttpClient, private router: Router,private snackBar: MatSnackBar,private formBuilder: FormBuilder) {}
 
+  ngOnInit() {
+    // Initialize the registerForm in the ngOnInit hook
+    this.registerForm = this.formBuilder.group({
+      username: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      phoneNumber: ['', [Validators.required, Validators.pattern('[0-9]{10}')]],
+      branch: ['', Validators.required],
+      accountType: ['', Validators.required],
+      openingBalance: ['', Validators.required],
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', [Validators.required, Validators.minLength(8)]],
+      gender: ['', Validators.required]
+    });
+      this.getBranches();
+      this.getAccountTypes();
+  }
+  
+  // onRoleChange() {
+  //   this.selectedRole = this.roleName;
+  //   if (this.roleName === 'User') {
+  //     // If the selected role is 'User', disable the Customer ID field and clear its value
+  //     this.registerForm.get('customerId')?.disable();
+  //     this.customerId = '';
+  //   } else if (this.roleName === 'Admin') {
+  //     // If the selected role is 'Admin', enable the Customer ID field
+  //     this.registerForm.get('customerId')?.enable();
+  //   }
+  // }
+  getAccountTypes() {
+    this.http.get<any>(this.serviceUrl+'user/getAllAccTypes', {}).subscribe(
+      types => {
+          this.accountTypes = types;
+        this.accountTypes.unshift({ accTypeId: 0, accTypeName: '--Select--' });
+        this.selectedAccountType = '--Select--';
+
+      },
+      error => {
+        console.error('Error fetching account types:', error);
+      }
+    );
+  }
+
+  getBranches() {
+    this.http.get<any>(this.serviceUrl+'user/getAllBranches', {}).subscribe(
+      branches => {
+       this.branches = branches;
+       this.branches.unshift({branchId: 0, branchName: '--Select--'});
+       this.selectedBranch = '--Select--';
+      },
+      error => {
+        console.error('Error fetching account types:', error);
+      }
+    );
+  }
 
   register(registerForm: any) {
 
@@ -42,26 +116,33 @@ export class RegisterComponent  {
       return;
     }
     // Perform form validation
-    if (this.username && this.email && this.password && this.phoneNumber && this.roleName && this.gender) {
       // Prepare the data to be sent to the backend API
       const registerData = {
-        userName: this.username,
+        firstName: this.firstName,
+        lastName: this.lastName,
         email: this.email,
         password: this.password,
         phoneNumber: this.phoneNumber,
-        roleName: this.roleName,
-        gender: this.gender
+        gender: this.gender,
+        branch :this.branch,
+        accountType: this.accountType,
+        openingBalance:this.openingBalance,
+        dob: this.dateOfBirth,
+        city:this.city,
+        occupation: this.occupation
+
 
       };
+     
       const headers = new HttpHeaders({
         'Content-Type': 'application/json'
       });
       // Call the backend API to save the registration form
-        this.http.post<SignUpResponse>('http://localhost:9091/user/signup', registerData, { headers }).subscribe(
+        this.http.post<SignUpResponse>(this.serviceUrl+'user/signup', registerData, { headers }).subscribe(
         (response) => {
           if(response.statusCodeValue === 201){
           console.log('Registration successful!', response.body.responseMsg);
-          this.displaySuccessMessage(response.body.responseMsg);
+          this.displaySuccessMessage(response.body.responseMsg, response.body.data);
           this.backtoLogin();
         }
         },
@@ -83,15 +164,16 @@ export class RegisterComponent  {
           // You can display an error message or perform other actions here
         }
       );
-    }
   }
 
-  displaySuccessMessage(message: string):void{
-    this.snackBar.open(message, 'Close', {
-      verticalPosition: 'top',
-      duration: 3000, // Adjust the duration as needed
-      panelClass: ['success-snackbar'] // Add custom CSS class for styling
-    });
+  displaySuccessMessage(message: string, id:string):void{
+    const messageWithId = message + '\nAccount Number: ' + id;
+  this.snackBar.open(messageWithId, 'Close', {
+    verticalPosition: 'top',
+    duration: 0, // Set duration to 0 to prevent automatic closing
+    panelClass: ['success-snackbar'], // Add custom CSS class for styling
+    data: { id: id } // Use data property to store the ID
+  });
   }
   displaySignUpMessage(message: string, color: string) {
     const signUpMessage = document.getElementById('signupMessage');

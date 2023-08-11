@@ -1,5 +1,5 @@
 <app-header></app-header>
-<div></div>
+<div id="loginMessage"></div>
 <div class="container" id="container">
 	
 	<div class="form-container sign-in-container">
@@ -11,7 +11,7 @@
 				<a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
 			</div>
 			<span>or use your account</span>
-      <div id="loginMessage"></div>
+      
       <form (ngSubmit)="login()" #loginForm="ngForm">
       <div class="form-group">
 		  <input type="email" id="email" placeholder="email" name="email" [(ngModel)]="email" required>

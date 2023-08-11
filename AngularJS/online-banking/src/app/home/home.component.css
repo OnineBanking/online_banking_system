@@ -93,7 +93,7 @@ table caption {
 
 .label {
   font-weight: bold;
-  margin-right: 10px;
+
   width: 20%; /* Adjust width as needed */
 }
 
@@ -124,13 +124,27 @@ button {
 form {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-gap: 10px;
   max-width: 400px;
-  margin-top: 15px;
+  margin: 0 auto; /* Center the form horizontally */
+  margin-top: -80px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  width: 100%;
 }
 
+.input-box {
+  width: calc(50% - 10px);
+  margin-bottom: 15px;
+}
 form label {
   font-weight: bold;
+  width: 100%;
 }
 
 button {
@@ -165,11 +179,13 @@ form .button input:hover{
  }
 
 /* Form field styles */
-input[type="text"],
-input[type="number"] {
+form input[type="text"],
+form input[type="number"],
+form select {
   padding: 5px;
   border: 1px solid #ccc;
   border-radius: 5px;
+  width: 90%; /* Adjust width as needed */
 }
 
 input:disabled {
@@ -191,7 +207,7 @@ input.ng-valid {
   right: 0;
   background-color: #f6ebeb;
   border: 1px solid #f6ebeb;
-  padding: 10px;
+  padding: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   z-index: 9999;
@@ -217,51 +233,22 @@ input.ng-valid {
   background-color: #0056b3;
 }
 
-.new-account-form {
-  display: flex;
-  flex-direction: column;
-  margin-top: 20px;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #f9f9f9;
+form .user-details .input-box{
+  margin-bottom: 15px;
+  width: calc(100% / 3 - 20px);
 }
 
-.new-account-form h2 {
-  margin-bottom: 10px;
+.title{
+  font-size: 30px;
+  font-weight: 500;
+  position: relative;
+  margin-top: 25px;
+  text-decoration: underline;
 }
 
-.new-account-form form {
-  display: flex;
-  flex-direction: column;
-}
 
-.new-account-form label {
-  margin-bottom: 5px;
-}
 
-.new-account-form select,
-.new-account-form input {
-  padding: 5px;
-  margin-bottom: 10px;
-}
 
-.new-account-form button {
-  padding: 8px 15px;
-  margin-top: 10px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
 
-.new-account-form button[type="submit"] {
-  background-color: #28a745;
-}
-
-.new-account-form button[type="button"] {
-  background-color: #dc3545;
-}
 
 

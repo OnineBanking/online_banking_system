@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component ,OnInit} from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { NgForm } from '@angular/forms';
 import { SharedDataService } from '../shared-data.service';
+import { ObsService } from '../service/obs.service';
+import { environment } from '../../environments/environment'
 
 interface LogoutResponse {
   headers: any;
@@ -43,60 +45,72 @@ interface PayResponse {
   styleUrls: ['./home.component.css']
 })
 
-export class HomeComponent {
+export class HomeComponent implements OnInit {
 
+  serviceUrl = environment.baseUrl1;
+  serviceUrl1 = environment.baseUrl;
+
+  obs : string ='';
   fromAccountNo: string = '';
   mediumOfTrans: string = '';
   transAmount: string = '';
   toAccountNo: string = '';
   comments: string = '';
-  mobileNumber: string ='';
-  recharge_amount:string ='';
-  EMI_Number:string ='';
-  Loan_Amount:string ='';
-  Card_Number:string ='';
-  CVV:string ='';
 
   constructor(
+    private obsService: ObsService,
     private http: HttpClient, 
     private router: Router, 
     private activatedRoute: ActivatedRoute,
      private snackBar: MatSnackBar, 
-     private sharedDataService: SharedDataService)
+     private sharedDataService: SharedDataService
+    )
      
      {
-    this.email = this.sharedDataService.getEmail();
-    this.username = this.sharedDataService.getUsername();
-    this.phoneNumber = this.sharedDataService.getPhoneNumber();
-    this.roleName = this.sharedDataService.getRoleName();
+    
+    this.username = localStorage.getItem('userName') ?? '';
+    this.phoneNumber = localStorage.getItem('mobile')?? '';
+   
   }
   currentUserRole: string = '';
   currentPage = 1; // Current page number
   itemsPerPage = 5;
   username: string = '';
   email: string = '';
+  custId:string ='';
   phoneNumber: string = '';
+  mobileNumber: string ='';
   roleName: string = '';
   loginTime: string = '';
   currentTab: string = 'accounts';
   selectedTransactionType: string = '';
   selectedPaymentType: string = '';
+  selectedLoanType: string = '';
   selectedAccountType: string = '';
   selectedAccount: any;
   showHistory: boolean = false;
   transactionHistory: any[] = [];
+  loanHistory: any[] = [];
   transfer: any = {};
+  accountTypes: any[] = [];
+  accountNumbers: any[] = [];
+  amount: string ='';
+  toAccountNumber: string ='';
+  redirectTabAfterTransfer: string =''
+  recharge_amount:string ='';
+  EMI_Number:string ='';
+  Loan_Amount:string ='';
+  Card_Number:string ='';
+  CVV:string ='';
   Pay: any = {};
   loanPay: any = {};
   creditPay: any = {};
-  accountTypes: any[] = [];
-  accountNumbers: any[] = [];
   accounts: any[] = [
     {
-      accountNumber: '1234567890',
-      branch: 'Branch Name',
-      name: 'Srini Vastava',
-      balance: 49800
+      accountNumber: localStorage.getItem('accNo') ?? '',
+      branchName: localStorage.getItem('branchName') ?? '',
+      name: localStorage.getItem('userName') ?? '',
+      balance: localStorage.getItem('balance') ?? ''
     },
     // Add more account details here
   ];
@@ -112,9 +126,17 @@ export class HomeComponent {
   hideProfileDetails() {
     this.showProfileDetails = false;
   }
-  ngOnInit() {
-    this.updateLoginTime();
+  async ngOnInit() {
+    
+    this.loginTime = this.obsService.getLoginTime();
     this.getAccountTypes();
+    this.refreshData();
+    this.listOfLoans();
+
+    const queryParams = this.activatedRoute.snapshot.queryParams;
+  if (this.currentTab === 'accounts') {
+    await this.obsService.getAccountInfo(); // Refresh account summary data
+  }
   }
 
   openNewAccountForm() {
@@ -128,41 +150,148 @@ export class HomeComponent {
   }
 
 
-  updateLoginTime() {
-    setInterval(() => {
-      const currentDate = new Date();
-      this.loginTime = this.formatTime(currentDate.getHours(), currentDate.getMinutes(), currentDate.getSeconds());
-    }, 1000);
-  }
-
-  formatTime(hours: number, minutes: number, seconds: number): string {
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
-    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes.toString();
-    const formattedSeconds = seconds < 10 ? `0${seconds}` : seconds.toString();
-    return `${formattedHours}:${formattedMinutes}:${formattedSeconds} ${ampm}`;
-  }
+ 
   selectTab(tabName: string) {
     this.currentTab = tabName;
 
   }
+  async refreshData(){
+    await this.obsService.getAccountInfo();
+  }
 
-  viewTransactionHistory() {
+  async viewUserProfileDetails() {
+    const userId = localStorage.getItem('userId') ?? '';
+    this.http.get<any>(this.serviceUrl1+`account/getAccInfoById?userId=${encodeURIComponent(userId)}`).subscribe(
+      response => {
+        if (response.statusCodeValue === 200) {
+          this.phoneNumber = response.body.cust.phoneNumber;
+          this.email = response.body.user.email;
+          this.showProfileDetails = true;
 
-    this.showHistory = true;
-    // Logic to fetch transaction history from the server and populate the transactionHistory array
-    // For demonstration purposes, let's assume we have some dummy data here
-    this.transactionHistory = [
-      { id: '764536', type: 'NEFT', date: '2023-07-01', description: 'Grocery Shopping', debit: 5200, credit: 0, amount: 49800 },
-      { date: '2023-06-28', description: 'Restaurant Bill', debit: 5000, credit: 0, amount: 55000 },
-      { date: '2023-06-25', description: 'Utility Payment', debit: 0, credit: 60000, amount: 60000 },
-      { date: '2023-06-25', description: 'Utility Payment', debit: 0, credit: 60000, amount: 60000 },
-      { date: '2023-06-25', description: 'Utility Payment', debit: 0, credit: 60000, amount: 60000 },
+        }
+
+      },
+      error => {
+        // Handle login error
+        if (error.status === 400) {
+          if (error.error && error.error.responseMsg) {
+            this.displayLoginMessage(error.error.responseMsg, 'red');
+          } else {
+            this.displayLoginMessage('Unauthorized: Invalid email', 'red');
+          }
+        } else if (error.status === 404) {
+          this.displayLoginMessage('Not Found: API endpoint not found', 'red');
+        } else {
+          this.displayLoginMessage('An error occurred. Please try again later.', 'red');
+        }
+      }
+    );
+  }
+
+  calculateEmi() {
+    const principal = this.loanApplication.loanAmount;
+    const rate = this.loanApplication.interestRate / 100 / 12; // Monthly interest rate
+    const time = this.loanApplication.termLength * 12; // Term in months
+
+    if (principal && rate && time) {
+      const emi = (principal * rate * Math.pow(1 + rate, time)) / (Math.pow(1 + rate, time) - 1);
+      this.loanApplication.emiPerMonth = emi.toFixed(2);
+    } else {
+      this.loanApplication.emiPerMonth = null;
+    }
+  }
+
+  loanApplication: any = {
+    associatedAccount: '',
+    loanAmount: null,
+    interestRate: null,
+    termLength: null,
+    emiPerMonth: null,
+  };
+
+  applyForLoan(loanApplyForm: NgForm) {
+    const loanData = {
+      associatedAccount: this.loanApplication.associatedAccount,
+      loanAmount: this.loanApplication.loanAmount,
+      interestRate: this.loanApplication.interestRate,
+      termLength: this.loanApplication.termLength *12,
+      emiPerMonth: this.loanApplication.emiPerMonth,
+      custId: localStorage.getItem('custId')?? '',
+      status: 'open'
+    };
+    console.log('loan data',loanData );
+    this.http.post(this.serviceUrl+'loan/create', loanData)
+      .subscribe(
+        response => {
+          // Handle success
+          console.log('Loan application submitted successfully', response);
+          // You can also reset the form here if needed
+          loanApplyForm.reset();
+        },
+        error => {
+          // Handle error
+          console.error('Error submitting loan application', error);
+        }
+      );
+  }
+
+  clearLoanApplyForm() {
+    this.loanApplication = {
+      associatedAccount: '',
+      loanAmount: null,
+      interestRate: null,
+      termLength: null,
+      emiPerMonth: null,
+    };
+  }
+
+  listOfLoans() {
+
+    this.loanHistory = [
+      { loanId: '123', loanAmount: '100000', emi: 5000, intrest: 10, tenture: 60, staus: 'open' },
+      { loanId: '456', loanAmount: '200000', emi: 7000, intrest: 11.5, tenture: 60, staus: 'open' },
 
     ];
   }
+
+  
+  viewTransactionHistory() {
+  
+    this.showHistory = true;
+  
+  const accNo = localStorage.getItem('accNo'); 
+  
+  fetch(this.serviceUrl+`transfer/transHistoryByid?accNo=${accNo}`)
+    .then(response => response.json())
+    .then((data: any) => {
+      if (data.statusCode === "OK") {
+        const transactions = (data.body.obj as Array<any>).map(transaction => ({
+          id: transaction.transId,
+          transType: transaction.transType, 
+          mediumOfTrans: transaction.mediumOfTrans,
+          dot: transaction.dot.substring(0, 10),
+          description: transaction.comments,
+          debit: transaction.transType === "DEBIT" ? transaction.transAmount : 0,
+          credit: transaction.transType === "CREDIT" ? transaction.transAmount : 0,
+          transAmount: transaction.transAmount,
+          accNumber: transaction.account.accNumber,
+          comments: transaction.comments,
+          balance: transaction.balance
+        }));
+        transactions.sort((a, b) => new Date(a.dot).getTime() - new Date(b.dot).getTime());
+        transactions.reverse();
+        this.transactionHistory = transactions;
+      } else {
+        console.error("Error fetching transaction history:", data.responseMsg);
+      }
+    })
+    .catch(error => {
+      console.error("Error fetching transaction history:", error);
+    });
+  }
+  
   getAccountTypes() {
-    this.http.get<any>('http://localhost:9092/transfer/accTypes/all', {}).subscribe(
+    this.http.get<any>(this.serviceUrl+'transfer/accTypes/all', {}).subscribe(
       response => {
         if (response.statusCodeValue === 200) {
           // Handle successful login response
@@ -190,7 +319,7 @@ export class HomeComponent {
     }
   }
   getAccountNumbersFromAPI(accTypeId: number) {
-    this.http.get<any>(`http://localhost:9092/transfer/getAccNumbers?accTypeId=${accTypeId}`).subscribe(
+    this.http.get<any>(this.serviceUrl+`transfer/getAccNumbers?accTypeId=${accTypeId}`).subscribe(
       response => {
 
         this.accountNumbers = response.body.obj.map((account: any) => account.accNumber);
@@ -202,8 +331,14 @@ export class HomeComponent {
   }
 
  clearForm(transferForm: NgForm) {
-    transferForm.reset();
-    this.transfer = {}; // Reset the transfer object as well
+   /// transferForm.reset();
+    this.transfer = {
+      fromAccountNo: '',
+      toAccountNo: null,
+      transAmount: null,
+      mediumOfTrans: '',
+      comments: null,
+    }; // Reset the transfer object as well
   }
 
   transferMoney(transferForm: any) {
@@ -215,25 +350,22 @@ export class HomeComponent {
         toAccountNo: this.transfer.toAccountNumber,
         transAmount: this.transfer.amount,
         mediumOfTrans: this.selectedTransactionType,
-        comments: this.transfer.comments
+        comments: this.transfer.comments,
+        userId: localStorage.getItem('userId') ?? ''
       };
-      console.log("TransData: ", transferData);
+      
       const headers = new HttpHeaders({
         'Content-Type': 'application/json'
       });
-      this.http.post<TransferResponse>('http://localhost:9092/transfer/debit', transferData, { headers }).subscribe(
+      this.http.post<TransferResponse>(this.serviceUrl+'transfer/debit', transferData, { headers }).subscribe(
         (response) => {
           if (response.statusCodeValue === 200) {                  
-            console.log('Registration successful!', response.body.responseMsg);
             this.displaySuccessMessage(response.body.responseMsg);
-            this.transfer = {};
-            this.fromAccountNo = '';
-        this.mediumOfTrans = '';
-        this.transAmount = '';
-        this.toAccountNo = '';
-        this.comments = '';
-            this.currentTab = 'accounts';
-            this.selectTab(this.currentTab);
+            this.refreshData();
+        this.clearForm(transferForm);
+        
+        this.redirectTabAfterTransfer = 'accounts';
+        this.selectTab(this.redirectTabAfterTransfer);
           }
         },
         (error) => {
@@ -250,89 +382,10 @@ export class HomeComponent {
           } else {
             this.displayLoginMessage('An error occurred. Please try again later.', 'red');
           }
-          // Handle the error response from the backend API
-          // You can display an error message or perform other actions here
         }
       );
     
   }
-
-  logout() {
-
-    this.http.post<LogoutResponse>('http://localhost:9091/user/signout', {}).subscribe(
-      response => {
-        if (response.statusCodeValue === 200) {
-          // Handle successful login response
-          console.log('Login Successful:', response.body.responseMsg);
-          this.displaySuccessMessage(response.body.responseMsg);
-          this.redirectToLoginPage();
-        }
-      },
-      error => {
-        // Handle login error
-        console.error('Login Error:', error);
-        if (error.status === 400) {
-          if (error.error && error.error.responseMsg) {
-            this.displayLoginMessage(error.error.responseMsg, 'red');
-          }
-        } else if (error.status === 404) {
-          this.displayLoginMessage('Not Found: API endpoint not found', 'red');
-        } else {
-          this.displayLoginMessage('An error occurred. Please try again later.', 'red');
-        }
-      }
-    );
-  }
-  viewUserProfileDetails() {
-    const url = `http://localhost:9091/user/getUserByName?username=${encodeURIComponent(this.email)}`;
-    this.http.get<any>(url).subscribe(
-      response => {
-        if (response.statusCodeValue === 200) {
-          console.log('User Info:', response.body.userName);
-          this.phoneNumber = response.body.phoneNumber;
-          this.showProfileDetails = true;
-
-        }
-
-      },
-      error => {
-        // Handle login error
-        console.error('Login Error:', error);
-        if (error.status === 400) {
-          if (error.error && error.error.responseMsg) {
-            this.displayLoginMessage(error.error.responseMsg, 'red');
-          } else {
-            this.displayLoginMessage('Unauthorized: Invalid email', 'red');
-          }
-        } else if (error.status === 404) {
-          this.displayLoginMessage('Not Found: API endpoint not found', 'red');
-        } else {
-          this.displayLoginMessage('An error occurred. Please try again later.', 'red');
-        }
-      }
-    );
-  }
-  redirectToLoginPage() {
-    this.router.navigate(['/login']);
-  }
-  displaySuccessMessage(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      verticalPosition: 'top',
-      duration: 3000, // Adjust the duration as needed
-      panelClass: ['success-snackbar'] // Add custom CSS class for styling
-    });
-  }
-  displayLoginMessage(message: string, color: string) {
-    const loginMessage = document.getElementById('loginMessage');
-    if (loginMessage) {
-      loginMessage.textContent = message;
-      loginMessage.style.color = color;
-    }
-  }
-  redirectToNewAccountPage() {
-    this.router.navigate(['/account']);
-  }
-
 
   payNow(payform
     : any ) {
@@ -420,5 +473,50 @@ export class HomeComponent {
             'Content-Type': 'application/json'
           });
         }
+
+  logout() {
+
+    this.http.post<LogoutResponse>(this.serviceUrl1+'user/signout', {}).subscribe(
+      response => {
+        if (response.statusCodeValue === 200) {
+          // Handle successful login response
+          this.displaySuccessMessage(response.body.responseMsg);
+          this.redirectToLoginPage();
+        }
+      },
+      error => {
+        // Handle login error
+        if (error.status === 400) {
+          if (error.error && error.error.responseMsg) {
+            this.displayLoginMessage(error.error.responseMsg, 'red');
+          }
+        } else if (error.status === 404) {
+          this.displayLoginMessage('Not Found: API endpoint not found', 'red');
+        } else {
+          this.displayLoginMessage('An error occurred. Please try again later.', 'red');
+        }
+      }
+    );
   }
-    
+  
+  redirectToLoginPage() {
+    this.router.navigate(['/login']);
+  }
+  displaySuccessMessage(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      verticalPosition: 'top',
+      duration: 3000, // Adjust the duration as needed
+      panelClass: ['success-snackbar'] // Add custom CSS class for styling
+    });
+  }
+  displayLoginMessage(message: string, color: string) {
+    const loginMessage = document.getElementById('loginMessage');
+    if (loginMessage) {
+      loginMessage.textContent = message;
+      loginMessage.style.color = color;
+    }
+  }
+  redirectToNewAccountPage() {
+    this.router.navigate(['/account']);
+  }
+}

@@ -1,0 +1,31 @@
+2023-08-11 10:57:01.250  INFO 10012 --- [main] c.d.o.a.ObsTransactionServiceApplication : Starting ObsTransactionServiceApplication using Java 11.0.19 on IN-PF2RVK6N with PID 10012 (C:\OnlineBankingSystem\Obs_Transaction_service\target\classes started by rsudarsanam in C:\OnlineBankingSystem\Obs_Transaction_service)
+2023-08-11 10:57:01.274  INFO 10012 --- [main] c.d.o.a.ObsTransactionServiceApplication : The following 1 profile is active: "prod"
+2023-08-11 10:57:02.080  INFO 10012 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-08-11 10:57:02.161  INFO 10012 --- [main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 71 ms. Found 5 JPA repository interfaces.
+2023-08-11 10:57:02.625  INFO 10012 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 9092 (http)
+2023-08-11 10:57:02.631  INFO 10012 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2023-08-11 10:57:02.632  INFO 10012 --- [main] org.apache.catalina.core.StandardEngine  : Starting Servlet engine: [Apache Tomcat/9.0.75]
+2023-08-11 10:57:02.748  INFO 10012 --- [main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2023-08-11 10:57:02.749  INFO 10012 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1356 ms
+2023-08-11 10:57:02.930  INFO 10012 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2023-08-11 10:57:02.934  WARN 10012 --- [main] com.zaxxer.hikari.util.DriverDataSource  : Registered driver with driverClassName=oracle.jdbc.driver.OracleDriver was not found, trying direct instantiation.
+2023-08-11 10:57:04.023  INFO 10012 --- [main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2023-08-11 10:57:04.059  INFO 10012 --- [main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2023-08-11 10:57:04.096  INFO 10012 --- [main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 5.6.15.Final
+2023-08-11 10:57:04.237  INFO 10012 --- [main] o.hibernate.annotations.common.Version   : HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2023-08-11 10:57:04.331  INFO 10012 --- [main] org.hibernate.dialect.Dialect            : HHH000400: Using dialect: org.hibernate.dialect.Oracle12cDialect
+2023-08-11 10:57:04.917  INFO 10012 --- [main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2023-08-11 10:57:04.931  INFO 10012 --- [main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2023-08-11 10:57:05.333  WARN 10012 --- [main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: a2a76ae9-c018-40b6-b02a-f54a34d5dea3
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2023-08-11 10:57:05.442  WARN 10012 --- [main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2023-08-11 10:57:05.642  INFO 10012 --- [main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@73818435, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@2fce8243, org.springframework.security.web.context.SecurityContextPersistenceFilter@37cc6017, org.springframework.security.web.header.HeaderWriterFilter@767cc126, org.springframework.web.filter.CorsFilter@52fe87e0, org.springframework.security.web.authentication.logout.LogoutFilter@a6204e4, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@7512a9a6, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@32fd5bc, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@37393dab, org.springframework.security.web.session.SessionManagementFilter@411933, org.springframework.security.web.access.ExceptionTranslationFilter@107ebdad, org.springframework.security.web.access.intercept.FilterSecurityInterceptor@44ec4a38]
+2023-08-11 10:57:05.869  INFO 10012 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 9092 (http) with context path ''
+2023-08-11 10:57:05.878  INFO 10012 --- [main] c.d.o.a.ObsTransactionServiceApplication : Started ObsTransactionServiceApplication in 5.018 seconds (JVM running for 6.682)
+2023-08-11 10:57:18.920  INFO 10012 --- [http-nio-9092-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2023-08-11 10:57:18.921  INFO 10012 --- [http-nio-9092-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2023-08-11 10:57:18.922  INFO 10012 --- [http-nio-9092-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms

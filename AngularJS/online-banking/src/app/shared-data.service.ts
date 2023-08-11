@@ -9,7 +9,7 @@ export class SharedDataService {
   private username: string ='';
   private email: string='';
   private phoneNumber: string='';
-  private roleName: string='';
+  private userId: string='';
 
   constructor() { }
 setToken(token: string){
@@ -38,10 +38,10 @@ getToken(): string{
   getPhoneNumber():string{
     return this.phoneNumber;
   }
-  setRoleName(roleName: string){
-    this.roleName = roleName;
+  setUserId(userId: string){
+    this.userId = userId;
   }
-  getRoleName(): string{
-    return this.roleName;
+  getUserId(): string{
+    return this.userId;
   }
 }
