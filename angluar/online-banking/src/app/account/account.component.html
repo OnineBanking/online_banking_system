@@ -1,0 +1,40 @@
+<div class="header">
+    <div class="logo"><img src="../assets/images/Obs_logo.jpg" alt="OBS"></div>
+    <div class="welcome">Welcome, {{username}} (Logged in at {{ loginTime }})</div>
+    <div class="links">
+      <a (click)="viewUserProfileDetails()" href="javascript:void(0);">Profile Details</a>
+      <div class="profile-details-popup" *ngIf="showProfileDetails">
+        <p><b>Username:</b> {{ username }}</p>
+        <p><b>Email:</b> {{ email }}</p>
+        <p><b>phoneNumber:</b> {{ phoneNumber }}</p>
+        <button (click)="logout()">Logout</button>
+        <button (click)="hideProfileDetails()">Close</button>
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="new-account-form" *ngIf="showNewAccountForm">
+    <h2>New Account Opening</h2>
+    <form (submit)="submitNewAccountForm()">
+      <label>Account Type</label>
+      <select [(ngModel)]="newAccount.accountType" name="accountType">
+        <option value="saving">Saving Account</option>
+        <option value="current">Current Account</option>
+      </select>
+
+      <label>Branch</label>
+      <input type="text" name="branch" [(ngModel)]="newAccount.branch">
+
+      <label>Name</label>
+      <input type="text" name="name" [(ngModel)]="newAccount.name">
+
+      <label>Initial Deposit</label>
+      <input type="number" name="initialDeposit" [(ngModel)]="newAccount.initialDeposit">
+
+      <button type="submit">Open Account</button>
+      <button type="button" (click)="hideNewAccountForm()">Cancel</button>
+    </form>
+  </div>
+
+  <app-footer></app-footer>

@@ -1,0 +1,89 @@
+<app-header></app-header>
+<div id="signupMessage"></div>
+
+<div class="container">
+  <div class="title">Registration</div>
+  <div class="content">
+    <form (ngSubmit)="register(registerForm)" #registerForm="ngForm">
+      <div class="user-details">
+        <div class="input-box">
+          <span class="details">Username</span>
+          <input type="text" placeholder="Enter your name" id="username" name="username" [(ngModel)]="username"
+            required>
+          <div *ngIf="registerForm.controls['username']?.invalid && registerForm.controls['username']?.touched"
+            class="error-message">
+            Username is required.
+          </div>
+        </div>
+        <div class="input-box">
+          <span class="details">Email</span>
+          <input type="text" placeholder="Enter your email" id="email" name="email" [(ngModel)]="email" required email>
+          <div *ngIf="registerForm.controls['email']?.invalid && registerForm.controls['email']?.touched"
+            class="error-message">
+            Valid email is required.
+          </div>
+        </div>
+        <div class="input-box">
+          <span class="details">Phone Number</span>
+          <input type="tel" placeholder="Enter your number" id="phoneNumber" name="phoneNumber"
+            [(ngModel)]="phoneNumber" required pattern="[0-9]{10}">
+          <div *ngIf="registerForm.controls['phoneNumber']?.invalid && registerForm.controls['phoneNumber']?.touched"
+            class="error-message">
+            Phone Number is required (10 digits only).
+          </div>
+        </div>
+        <div class="input-box">
+          <span class="roleName">Role Name(User or Admin)</span>
+          <input type="text" id="roleName" name="roleName" placeholder="Enter your roleName" [(ngModel)]="roleName"
+            required>
+          <div *ngIf="registerForm.controls['roleName']?.invalid && registerForm.controls['roleName']?.touched"
+            class="error-message">
+            Role Name is required.
+          </div>
+        </div>
+        <div class="input-box">
+          <span class="details">Password</span>
+          <input type="password" placeholder="Enter your password" id="password" name="password" [(ngModel)]="password"
+            required minlength="8">
+          <div *ngIf="registerForm.controls['password']?.invalid && registerForm.controls['password']?.touched"
+            class="error-message">
+            Password is required (minimum 8 characters).
+          </div>
+        </div>
+        <div class="input-box">
+          <span class="details">Confirm Password</span>
+          <input type="password" placeholder="Confirm your password" id="confirmPassword" name="confirmPassword"
+            [(ngModel)]="password" required minlength="8">
+          <div
+            *ngIf="registerForm.controls['confirmPassword']?.invalid && registerForm.controls['confirmPassword']?.touched"
+            class="error-message">
+            Confirm Password is required (minimum 8 characters).
+          </div>
+        </div>
+
+        <div class="gender-details">
+          <input type="radio" name="gender" id="dot-1" [(ngModel)]="gender" value="Male">
+          <input type="radio" name="gender" id="dot-2" [(ngModel)]="gender" value="Female">
+          <span class="roleName">Gender</span>
+          <div class="category">
+            <label for="dot-1">
+              <span class="dot one"></span>
+              <span class="gender">Male</span>
+            </label>
+            <label for="dot-2">
+              <span class="dot two"></span>
+              <span class="gender">Female</span>
+            </label>
+          </div>
+        </div>
+
+      </div>
+      <div class="button">
+        <input type="submit" [disabled]="registerForm.invalid" value="Register">
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<app-footer></app-footer>
