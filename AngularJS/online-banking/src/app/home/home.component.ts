@@ -526,25 +526,6 @@ export class HomeComponent implements OnInit {
 
   }
 
-
-  CreditCard_Pay(creditPayform
-    : any) {
-
-    // Perform form validation
-    if (creditPayform && creditPayform.invalid) {
-      return;
-    }
-    const creditpayData = {
-      CVV: this.creditPay.CVV,
-      Card_Number: this.creditPay.Card_Number,
-    };
-
-    console.log("creditPay: ", creditpayData);
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
-  }
-
   CreditCardApplication: any = {
     associatedAccount: '',
     custId: localStorage.getItem('custId')?? '',
@@ -575,11 +556,75 @@ export class HomeComponent implements OnInit {
         }
       );
   }
-
   clearCreditCardApplyForm(){
     this.CreditCardApplication = {
       pan: null,
       income: null,
+    };
+  }
+
+  CreditCardPymt: any ={
+    associatedAccount: '',
+    creditCardNumber: '',
+    cvv: '',
+    expMonth: '',
+    expYear: '',
+    amount: '',
+    cardHolderName: '',
+  };
+
+  creditCardBill_Pay(creditPayform: any) {
+    // Perform form validation
+    if (creditPayform && creditPayform.invalid) {
+      return;
+    }
+    const CreditCardPymt = {
+      associatedAccount:this.CreditCardPymt.associatedAccount,
+      creditCardNumber: this.CreditCardPymt.creditCardNumber,
+      cvv: this.CreditCardPymt.cvv,
+      expMonth: this.CreditCardPymt.expMonth,
+      expYear: this.CreditCardPymt.expYear,
+      amount: this.CreditCardPymt.amount,
+      cardHolderName: this.CreditCardPymt.cardHolderName,
+    };
+    console.log("CreditCardPymt: ", CreditCardPymt);
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+    this.http.post(this.serviceUrl+'creditCardPymt/outStandingAmt', CreditCardPymt).subscribe(
+      response => {
+        // Handle success
+        console.log('Credit Card Payment completed successfully', response);
+        // You can also reset the form here if needed
+        creditPayform.reset();
+      },
+      (error) => {
+
+        console.error('Payment failed!', error.error.message);
+        if (error.status === 400) {
+          if (error.error && error.error.message) {
+            this.displayLoginMessage(error.error.message, 'red');
+          } else {
+            this.displayLoginMessage('Unauthorized: Invalid email or password', 'red');
+          }
+        } else if (error.status === 404) {
+          this.displayLoginMessage('Not Found: API endpoint not found', 'red');
+        } else {
+          this.displayLoginMessage('An error occurred. Please try again later.', 'red');
+        }
+      }
+    );
+
+  }
+
+  clearCreditCardPayForm(){
+    this.CreditCardPymt={
+      creditCardNumber: null,
+      cvv: null,
+      expMonth: null,
+      expYear: null,
+      amount: null,
+      cardHolderName: null,
     };
   }
 

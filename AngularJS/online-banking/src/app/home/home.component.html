@@ -177,57 +177,78 @@
       </div>
 
       <div *ngIf="selectedPaymentType === 'Credit'">
-        <div class="container">
-
-          <form (submit)="CreditCard_Pay(creditPayform)" #creditPayform="ngForm">
-            <div class="title">Credit Card Payment</div>
-            <div class="form-group">
-              <label for="card_number">Card Number:</label>
-              <input type="number" id="card_number" name="card_number" placeholder="Enter card number"
-                [(ngModel)]="Card_Number" required pattern="[0-9]{10}">
-              <div
-                *ngIf="creditPayform.controls[' Card_Number']?.invalid && creditPayform.controls[' Card_Number']?.touched"
-                class="error-message">
-                Card Number Number is required (10 digits only).
+        <div class="loan-apply-form">
+          <form (submit)="creditCardBill_Pay(creditPayform)" #creditPayform="ngForm">
+            <div class="title">Pay Credit Card Bill</div>
+            <div class="form-row">
+    
+              <div class="input-box">
+                <label>Associated Account</label>
+                <select [(ngModel)]="CreditCardPymt.associatedAccount" name="associatedAccount" required>
+                  <option *ngFor="let account of accounts" [value]="account.accountNumber">
+                    {{ account.accountNumber }}
+                  </option>
+                </select>
               </div>
-
-            </div>
-            <div class="form-group">
-              <label for="cardholder_name">Cardholder Name:</label>
-              <input type="text" id="cardholder_name" name="cardholder_name" placeholder="Enter cardholder name"
-                required />
-            </div>
-            <div class="form-group">
-              <label for="expiration_month">Expiration Month:</label>
-              <select id="expiration_month" name="expiration_month" required min="0" max="12">
-                <option value="" disabled selected>Select Month</option>
-                <option value="01">January</option>
-                <option value="02">February</option>
-                <!-- Add other months here -->
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="expiration_year">Expiration Year:</label>
-              <select id="expiration_year" name="expiration_year" required>
-                <option value="" disabled selected>Select Year</option>
-                <option value="2023">2023</option>
-                <option value="2024">2024</option>
-                <option value="2025">2023</option>
-                <option value="2026">2024</option>
-                <option value="2027">2024</option>
-                <!-- Add other years here -->
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="cvv">CVV:</label>
-              <input type="number" id="cvv" name="cvv" placeholder="Enter CVV" [(ngModel)]="CVV" required
-                pattern="[0-9]{3}">
-              <div *ngIf="creditPayform.controls[' CVV']?.invalid && creditPayform.controls[' CVV']?.touched"
-                class="error-message">
-                CVV Number is required (3 digits only).
+    
+              <div class="input-box">
+                <label>Full Name</label>
+                <input type="text" name="fullName" [(ngModel)]="CreditCardPymt.fullname" value=" {{username}}">
               </div>
             </div>
-            <button type="submit" class="btn">Pay Now</button>
+            <div class="form-row">
+              <div class="input-box">
+                <label>Credit Card Number</label>
+                <input type="text" name="creditCardNumber" [(ngModel)]="CreditCardPymt.creditCardNumber" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="input-box">
+                <label>Expiry Month</label>
+                <select id="expMonth" name="expMonth" required min="0" max="12" [(ngModel)]="CreditCardPymt.expMonth" required>
+                  <option value="" disabled selected>Select Month</option>
+                  <option value="01">January</option>
+                  <option value="02">February</option>
+                  <option value="03">January</option>
+                  <option value="04">February</option>
+                  <option value="05">January</option>
+                  <option value="06">February</option>
+                  <option value="07">January</option>
+                  <option value="08">February</option>
+                  <option value="09">January</option>
+                  <option value="10">February</option>
+                  <option value="11">January</option>
+                  <option value="12">February</option>
+                </select>
+              </div>
+              <div class="input-box">
+                <label>Expiry Year</label>
+                <select id="expYear" name="expYear" [(ngModel)]="CreditCardPymt.expYear" required>
+                  <option value="" disabled selected>Select Year</option>
+                  <option value="2023">2023</option>
+                  <option value="2024">2024</option>
+                  <option value="2025">2025</option>
+                  <option value="2026">2026</option>
+                  <option value="2027">2027</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="input-box">
+                <label>CVV</label>
+                <input type="number" name="cvv" [(ngModel)]="CreditCardPymt.cvv" pattern="[0-9]{3}" required>
+              </div>
+              <div class="input-box">
+                <label>Outstanding Amount</label>
+                <input type="number" name="amount" [(ngModel)]="CreditCardPymt.amount" required>
+              </div>
+            </div>
+    
+             <div class="button">
+              <button type="submit" [disabled]="creditPayform.invalid">Pay Now</button>&nbsp;&nbsp;
+              <button type="button" (click)="clearCreditCardPayForm()">Cancel</button>
+            </div>
           </form>
         </div>
       </div>
