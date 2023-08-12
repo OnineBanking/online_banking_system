@@ -110,6 +110,7 @@ private userId = '';
               localStorage.setItem('balance' ,response.body.openingBalance);
               localStorage.setItem('mobile' ,response.body.cust.phoneNumber );
               localStorage.setItem('custId' ,response.body.cust.custId );
+              localStorage.setItem('branchId', response.body.branch.branchId)
               
 
               console.log(response.body.accNumber);
