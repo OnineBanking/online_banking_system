@@ -3,16 +3,15 @@ package com.olbs.loan.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.olbs.loan.dto.LoanRequestDto;
@@ -24,11 +23,13 @@ import com.olbs.loan.service.LoanService;
 import com.olbs.loan.service.iLoanService;
 
 @RestController
+@CrossOrigin(origins = "*")
+@RequestMapping("/loan")
 public class LoanApplicationController {
 
 	@Autowired
-	@Qualifier("loanService")
 	iLoanService service1;
+	
 	ResponseDto response = new ResponseDto();
 	
 	@PostMapping("/addCustomer")
@@ -39,7 +40,7 @@ public class LoanApplicationController {
 		return ResponseEntity.ok().body(new ResponseEntity<>(response, HttpStatus.CREATED));
 	}
 
-	@PostMapping("/loan")
+	@PostMapping("/applyLoan")
 	public ResponseEntity<?> applyLoan(@RequestBody LoanRequestDto loan) {
 		Loan loanObj = service1.applyLoan(loan);
 			response.setMessage("Loan Created Successfully!");
@@ -48,7 +49,7 @@ public class LoanApplicationController {
 	}
 
 	@GetMapping("/getloans/{id}")
-	public ResponseEntity<?> getLoansByCustId(@PathVariable int id) {
+	public ResponseEntity<?> getLoansByCustId(@PathVariable Long id) {
 		List<Loan> loan = service1.getLoansByCustId(id);
 		response.setMessage("Loan Details!");
 		response.setObj(loan);
@@ -56,7 +57,7 @@ public class LoanApplicationController {
 	}
 
 	@PutMapping("/closeloan/{id}")
-	public ResponseEntity<?> closeLoan(@PathVariable int id) {
+	public ResponseEntity<?> closeLoan(@PathVariable Long id) {
 		Loan loan = service1.closeLoan(id);
 		response.setMessage("Loan closed!");
 		response.setObj(loan);

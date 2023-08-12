@@ -6,8 +6,9 @@ import org.springframework.stereotype.Repository;
 import com.olbs.loan.entity.Account_info;
 import com.olbs.loan.entity.Loan;
 @Repository
-public interface AccountRepositary extends JpaRepository<Account_info, Integer> {
+public interface AccountRepositary extends JpaRepository<Account_info, Long> {
+
+	Account_info findByAccNumber(Long acnumber);
   
-	Account_info getAccountByacnumber(int acnumber);
 	
 }

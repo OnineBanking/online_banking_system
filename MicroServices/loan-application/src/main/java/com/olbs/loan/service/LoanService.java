@@ -1,5 +1,6 @@
 package com.olbs.loan.service;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.List;
@@ -7,20 +8,23 @@ import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.olbs.loan.dao.AccountRepositary;
+import com.olbs.loan.dao.BranchRepository;
 import com.olbs.loan.dao.CustomerRepository;
 import com.olbs.loan.dao.LoanRepositary;
 import com.olbs.loan.dao.TransactionRepositary;
 import com.olbs.loan.dto.LoanRequestDto;
 import com.olbs.loan.entity.Account_info;
+import com.olbs.loan.entity.Branch;
 import com.olbs.loan.entity.Customer_Info;
 import com.olbs.loan.entity.Loan;
 import com.olbs.loan.entity.Transaction_Info;
 import com.olbs.loan.exceptions.AccountNotFoundException;
 import com.olbs.loan.exceptions.CustomerNotFoundException;
 import com.olbs.loan.exceptions.LoanNotFoundException;
-@Component("loanService")
+@Service
 public class LoanService implements iLoanService {
 	
 	@Autowired
@@ -34,31 +38,40 @@ public class LoanService implements iLoanService {
 	
 	@Autowired
 	private TransactionRepositary txnsDao;
+	
+	@Autowired
+	BranchRepository branchRepo;
 
 	@Override
 	public Loan applyLoan(LoanRequestDto loan) {
 		Loan loanDetails  = null; 
-		Customer_Info cust = dao.findByCustid(loan.getCustId());
-		if(cust!=null) {
+		Customer_Info cust = dao.findByCustId(loan.getCustid());
+		
+		Branch did = branchRepo.findByBranchId(loan.getBid());
+		if(did == null) {
+			throw new CustomerNotFoundException("Branch details not found");
+		}
+		if(cust!=null && did != null) {
 			loanDetails  = new Loan();
-			loanDetails.setBid(loan.getBid());
+			loanDetails.setLoanId(genarateNumber());
+			loanDetails.setBid(did);
 			loanDetails.setLoan_amount(loan.getLoan_amount());
-			loanDetails.setLemi(loan.getLemi());
-			loanDetails.setLtenure(loan.getLtenure());
+			loanDetails.setLoanEmi(loan.getLemi());
+			loanDetails.setLoanTenure(loan.getLtenure());
 			loanDetails.setStatus(loan.getStatus());
+			loanDetails.setInterest(loan.getIntrest());
 			loanDetails.setCust(cust);
 		}else {
 			throw new CustomerNotFoundException("customer not found");
 		}
-		   System.out.println("loan details"+loanDetails.getLnumber());
 			return loanDao.save(loanDetails);		
 	}
 
 	@Override
-	public List<Loan> getLoansByCustId(int custId) {
-		Customer_Info cust = dao.findByCustid(custId);
+	public List<Loan> getLoansByCustId(Long custId) {
+		Customer_Info cust = dao.findByCustId(custId);
 		if(cust!=null) {
-			return loanDao.getLoansByCustCustid(custId);
+			return loanDao.getLoansByCustCustId(custId);
 		}else {
 
 		throw new CustomerNotFoundException("customer not found");
@@ -66,8 +79,8 @@ public class LoanService implements iLoanService {
 	}
 
 	@Override
-	public Loan closeLoan(int lnumber) {
-		Loan loan=loanDao.getLoanBylnumber(lnumber);
+	public Loan closeLoan(Long lnumber) {
+		Loan loan=loanDao.getLoanByLoanId(lnumber);
 		if(loan!=null) {
 		loan.setStatus("Closed");
 		return loanDao.save(loan);
@@ -78,7 +91,7 @@ public class LoanService implements iLoanService {
 
 	@Override
 	public Customer_Info addCustomner(Customer_Info customerinfo) {
-		Customer_Info customer=dao.findByMobileno(customerinfo.getMobileno());
+		Customer_Info customer=dao.findByPhoneNumber(customerinfo.getPhoneNumber());
 		if(customer==null) {
 			return dao.save(customerinfo);
 		}else {
@@ -86,39 +99,37 @@ public class LoanService implements iLoanService {
 		}
 	}
 	
-	private double emiCalculator(LoanRequestDto loan) {
-		double emi;
-		double rate=10.0/(12*100);
-        double time=loan.getLtenure()*12;
-		if(loan.getLoan_amount()!=0) {
-			emi= (loan.getLoan_amount()*rate*Math.pow(1+rate,time))/(Math.pow(1+rate,time)-1);
-			return emi;
-		}	else {
-			return 0;
-		}
-		
-	}
+	/*
+	 * private double emiCalculator(LoanRequestDto loan) { double emi; double
+	 * rate=10.0/(12*100); double time=loan.getLtenure()*12;
+	 * if(loan.getLoan_amount()!=0) { emi=
+	 * (loan.getLoan_amount()*rate*Math.pow(1+rate,time))/(Math.pow(1+rate,time)-1);
+	 * return emi; } else { return 0; }
+	 * 
+	 * }
+	 */
 
 	@Override
 	public Account_info emiPayment(LoanRequestDto loan) {
 		Account_info account=null;
 		Loan loanDetails=null;
-		loanDetails=loanDao.getLoanBylnumber(loan.getLnumber());
+		loanDetails=loanDao.getLoanByLoanId(loan.getLnumber());
 		if(loanDetails==null) {
-			throw new LoanNotFoundException("Loan details are found for given loan Id:"+loan.getLnumber());
+			throw new LoanNotFoundException("Loan details are not found for given loan Id:"+loan.getLnumber());
 		}
-		account=accountDao.getAccountByacnumber(loan.getAcnumber());
+		account=accountDao.findByAccNumber(loan.getAcnumber());
 		if(account==null) {
 			throw new AccountNotFoundException("Account Details Not found for given Account number:"+loan.getAcnumber());
 		}
-		if(account.getOpening_balance() >= loan.getLemi()) {
-			int openingbalance=(int) (account.getOpening_balance()-loan.getLemi());
-			account.setOpening_balance(openingbalance);
-			int emi=(int) (loan.getLoan_amount()-loan.getLemi());
-			int tenure=(int) (loan.getLtenure()-1);
+		int result = account.getOpeningBalance().compareTo(loan.getLemi());
+		if(result >= 0) {
+			BigDecimal openingbalance= (account.getOpeningBalance().subtract(loan.getLemi()));
+			account.setOpeningBalance(openingbalance);
+			BigDecimal emi= (loanDetails.getLoan_amount().subtract(loan.getLemi()));
+			//int tenure=(int) (loanDetails.getLoanTenure()-1);
 			loanDetails.setLoan_amount(emi);
-			loanDetails.setLtenure(tenure);
-			saveTxns(account,loan);
+			loanDetails.setLoanTenure(loanDetails.getLoanTenure()-1);
+			saveTxns(account,loanDetails);
 		    loanDao.save(loanDetails);
 		    accountDao.save(account);
 		    return account;
@@ -127,14 +138,15 @@ public class LoanService implements iLoanService {
 		}
 	}
 	
-	private void saveTxns(Account_info acccount,LoanRequestDto loan) {
+	private void saveTxns(Account_info acccount,Loan loan) {
 		Transaction_Info txns=new Transaction_Info();
-		txns.setTnumber(genarateNumber());
-		txns.setAcnumber(acccount.getAcnumber());
+		txns.setTransId(genarateNumber());
+		txns.setAccount(acccount);
 		txns.setDot(new Date());
-		txns.setMedium_of_transaction("Online");
-		txns.setTransaction_type("Debit");
-		txns.setTransaction_amount(loan.getLemi());
+		txns.setMediumOfTrans("Online");
+		txns.setTransType("Debit");
+		txns.setTransAmount(loan.getLoanEmi());
+		txns.setBalance(acccount.getOpeningBalance());
 		txnsDao.save(txns);
 	}
 	

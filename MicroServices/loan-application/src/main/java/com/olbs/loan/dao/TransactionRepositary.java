@@ -6,6 +6,6 @@ import org.springframework.data.repository.CrudRepository;
 
 import com.olbs.loan.entity.Transaction_Info;
 
-public interface TransactionRepositary extends JpaRepository<Transaction_Info, Integer> {
+public interface TransactionRepositary extends JpaRepository<Transaction_Info, Long> {
 
 }

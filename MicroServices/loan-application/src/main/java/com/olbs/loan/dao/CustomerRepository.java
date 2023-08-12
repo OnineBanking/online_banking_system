@@ -1,16 +1,20 @@
 package com.olbs.loan.dao;
 
-import java.util.Date;
+
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import com.olbs.loan.entity.Customer_Info;
 
-public interface CustomerRepository extends JpaRepository<Customer_Info, Integer>{
-		
-	Customer_Info findByMobileno(double mobileno);
+public interface CustomerRepository extends JpaRepository<Customer_Info, Long>{
 
-	Customer_Info findByCustid(int custid);
+
+	Customer_Info findByPhoneNumber(Long phoneNumber);
+
+	Customer_Info findByCustId(Long custid);
+
+
+
+		
 
 }

@@ -8,12 +8,10 @@ import org.springframework.stereotype.Repository;
 import com.olbs.loan.entity.Loan;
 
 @Repository
-public interface LoanRepositary extends JpaRepository<Loan, Integer> {
+public interface LoanRepositary extends JpaRepository<Loan, Long> {
 	
-	List<Loan> findByCustCustid(int custid);
-	List<Loan> getLoansByCustCustid(int custid);
-	Loan getLoanBylnumber(int lnumber);
-	//Loan getAccountByacnumber(int acnumber);
-	//List<Loan> updatestatus(int lnumber);
+	List<Loan> findByCustCustId(Long custid);
+	List<Loan> getLoansByCustCustId(Long custId);
+	Loan getLoanByLoanId(Long lnumber);
 
 }
