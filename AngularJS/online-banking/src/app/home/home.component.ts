@@ -545,6 +545,44 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  CreditCardApplication: any = {
+    associatedAccount: '',
+    custId: localStorage.getItem('custId')?? '',
+    pan: null,
+    income: null,
+  };
+
+  applyForCreditCard(CreditCardApplyForm: NgForm){
+    const CreditCardApplication = {
+      associatedAccount: this.CreditCardApplication.associatedAccount,
+      custId: this.CreditCardApplication.custId,
+      pan: this.CreditCardApplication.pan,
+      income: this.CreditCardApplication.income,
+      status: 'pending'
+    };
+    console.log('Credit card Application data', CreditCardApplication );
+    this.http.post(this.serviceUrl+'applycreditCard/saveCreditCardApplication', CreditCardApplication)
+      .subscribe(
+        response => {
+          // Handle success
+          console.log('Credit Card application submitted successfully', response);
+          // You can also reset the form here if needed
+          CreditCardApplyForm.reset();
+        },
+        error => {
+          // Handle error
+          console.error('Error submitting loan application', error);
+        }
+      );
+  }
+
+  clearCreditCardApplyForm(){
+    this.CreditCardApplication = {
+      pan: null,
+      income: null,
+    };
+  }
+
   logout() {
 
     this.http.post<LogoutResponse>(this.serviceUrl1 + 'user/signout', {}).subscribe(

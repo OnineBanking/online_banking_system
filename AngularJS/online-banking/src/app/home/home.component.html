@@ -300,9 +300,42 @@
 
     <div *ngIf="currentTab === 'cards'">
       <h2>Cards</h2>
-      <div>
-        <h3>Active Cards:</h3>
-        <!-- Display active cards and apply for new cards -->
+      <div class="loan-apply-form">
+        <form (submit)="applyForCreditCard(CreditCardApplyForm)" #CreditCardApplyForm="ngForm">
+          <div class="title">Apply for a Credit Card</div>
+          <div class="form-row">
+  
+            <div class="input-box">
+              <label>Associated Account</label>
+              <select [(ngModel)]="CreditCardApplication.associatedAccount" name="associatedAccount" required>
+                <option *ngFor="let account of accounts" [value]="account.accountNumber">
+                  {{ account.accountNumber }}
+                </option>
+              </select>
+            </div>
+  
+            <div class="input-box">
+              <label>Full Name</label>
+              <input type="text" name="fullName" disabled="true" [(ngModel)]="CreditCardApplication.fullname" value=" {{username}}">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="input-box">
+              <label>PAN</label>
+              <input type="text" name="pan" [(ngModel)]="CreditCardApplication.pan" required>
+            </div>
+        
+            <div class="input-box">
+              <label>Monthly Income</label>
+              <input type="number" name="income" [(ngModel)]="CreditCardApplication.income" required>
+            </div>
+          </div>
+  
+           <div class="button">
+            <button type="submit" [disabled]="CreditCardApplyForm.invalid">Apply</button>&nbsp;&nbsp;
+            <button type="button" (click)="clearCreditCardApplyForm()">Cancel</button>
+          </div>
+        </form>
       </div>
     </div>
 
