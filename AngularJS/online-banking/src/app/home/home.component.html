@@ -185,6 +185,7 @@
               <div class="input-box">
                 <label>Associated Account</label>
                 <select [(ngModel)]="CreditCardPymt.associatedAccount" name="associatedAccount" required>
+                  <option value="1">1</option>
                   <option *ngFor="let account of accounts" [value]="account.accountNumber">
                     {{ account.accountNumber }}
                   </option>
@@ -193,7 +194,7 @@
     
               <div class="input-box">
                 <label>Full Name</label>
-                <input type="text" name="fullName" [(ngModel)]="CreditCardPymt.fullname" value=" {{username}}">
+                <input type="text" name="fullName" [(ngModel)]="CreditCardPymt.fullName" required>
               </div>
             </div>
             <div class="form-row">
@@ -209,16 +210,16 @@
                   <option value="" disabled selected>Select Month</option>
                   <option value="01">January</option>
                   <option value="02">February</option>
-                  <option value="03">January</option>
-                  <option value="04">February</option>
-                  <option value="05">January</option>
-                  <option value="06">February</option>
-                  <option value="07">January</option>
-                  <option value="08">February</option>
-                  <option value="09">January</option>
-                  <option value="10">February</option>
-                  <option value="11">January</option>
-                  <option value="12">February</option>
+                  <option value="03">March</option>
+                  <option value="04">April</option>
+                  <option value="05">May</option>
+                  <option value="06">June</option>
+                  <option value="07">July</option>
+                  <option value="08">August</option>
+                  <option value="09">September</option>
+                  <option value="10">October</option>
+                  <option value="11">November</option>
+                  <option value="12">December</option>
                 </select>
               </div>
               <div class="input-box">
@@ -246,7 +247,8 @@
             </div>
     
              <div class="button">
-              <button type="submit" [disabled]="creditPayform.invalid">Pay Now</button>&nbsp;&nbsp;
+              <!--button type="submit" [disabled]="creditPayform.invalid">Pay Now</button-->&nbsp;&nbsp;
+              <button type="submit" >Pay Now</button>&nbsp;&nbsp;
               <button type="button" (click)="clearCreditCardPayForm()">Cancel</button>
             </div>
           </form>
