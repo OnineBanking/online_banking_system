@@ -1,6 +1,6 @@
-package com.dxc.olbs.creditcardpymt.service;
+package com.dxc.obs.api.creditcardpymt.service;
 
-import com.dxc.olbs.creditcardpymt.model.CreditCardPymtData;
+import com.dxc.obs.api.creditcardpymt.model.CreditCardPymtData;
 
 public interface CreditCardPymtService {
 	

@@ -1,13 +1,13 @@
-package com.dxc.olbs.creditcardpymt;
+package com.dxc.obs.api.creditcardpymt;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CreditCardPymtApplication {
+public class CreditCardPaymentApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(CreditCardPymtApplication.class, args);
+		SpringApplication.run(CreditCardPaymentApplication.class, args);
 	}
 
 }

@@ -1,10 +1,13 @@
-package com.dxc.olbs.creditcardpymt.model;
+package com.dxc.obs.api.creditcardpymt.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
@@ -24,15 +27,6 @@ public class CreditCardPymtData {
 	@Column(name = "to_actnumber")
 	private String creditCardNumber;
 	
-	@Column(name = "cc_cvv_num")
-	private int cvv;
-	
-	@Column(name = "cc_exp_mm")
-	private int expiryMonth;
-	
-	@Column(name = "cc_exp_yyyy")
-	private int expiryYear;
-	
 	@Column(name = "txn_amount")
 	private Double amount;
 	
@@ -45,6 +39,18 @@ public class CreditCardPymtData {
 	@Column(name = "TXN_DESCRIPTION")
 	private String txnDescription;
 	
+	@OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "cc_pymt_info_id", referencedColumnName = "cc_pymt_info_id")
+	CrediCardInfo creditCardInfo;
+	
+	
+	
+	public CrediCardInfo getCreditCardInfo() {
+		return creditCardInfo;
+	}
+	public void setCreditCardInfo(CrediCardInfo creditCardInfo) {
+		this.creditCardInfo = creditCardInfo;
+	}
 	public String getTxnDescription() {
 		return txnDescription;
 	}
@@ -81,24 +87,7 @@ public class CreditCardPymtData {
 	public void setCreditCardNumber(String creditCardNumber) {
 		this.creditCardNumber = creditCardNumber;
 	}
-	public int getCvv() {
-		return cvv;
-	}
-	public void setCvv(int cvv) {
-		this.cvv = cvv;
-	}
-	public int getExpiryMonth() {
-		return expiryMonth;
-	}
-	public void setExpiryMonth(int expiryMonth) {
-		this.expiryMonth = expiryMonth;
-	}
-	public int getExpiryYear() {
-		return expiryYear;
-	}
-	public void setExpiryYear(int expiryYear) {
-		this.expiryYear = expiryYear;
-	}
+	
 	public Double getAmount() {
 		return amount;
 	}
