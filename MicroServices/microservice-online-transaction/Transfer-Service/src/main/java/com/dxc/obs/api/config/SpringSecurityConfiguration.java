@@ -21,7 +21,7 @@ public class SpringSecurityConfiguration {
 		httpSecurity = httpSecurity.cors().and().csrf().disable();
 		httpSecurity = httpSecurity.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and();
 
-		httpSecurity.authorizeRequests().antMatchers("/**").permitAll().anyRequest().authenticated();
+		//httpSecurity.authorizeRequests().antMatchers("/**").permitAll().anyRequest().authenticated();
 
 		return httpSecurity.build();
 	}
